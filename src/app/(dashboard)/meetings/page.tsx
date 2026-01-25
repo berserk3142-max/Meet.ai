@@ -14,7 +14,7 @@ export default function MeetingsPage() {
                     </div>
                     <h2 className="text-xl font-semibold text-white mb-2">No meetings yet</h2>
                     <p className="text-zinc-400 mb-6">Start your first meeting to see it here.</p>
-                    <button className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all">
+                    <button className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg font-medium hover:from-emerald-500 hover:to-teal-500 transition-all shadow-lg shadow-emerald-500/20">
                         Start Meeting
                     </button>
                 </div>

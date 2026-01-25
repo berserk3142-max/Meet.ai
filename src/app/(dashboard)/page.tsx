@@ -34,7 +34,7 @@ export default async function HomePage() {
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
                     <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
                     <div className="flex gap-4">
-                        <button className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all">
+                        <button className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg font-medium hover:from-emerald-500 hover:to-teal-500 transition-all shadow-lg shadow-emerald-500/20">
                             Start Meeting
                         </button>
                         <button className="px-4 py-2 bg-zinc-800 text-white rounded-lg font-medium hover:bg-zinc-700 transition-all">

@@ -118,7 +118,7 @@ export default function LoginForm() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your email"
                         required
-                        className="w-full rounded-lg border border-zinc-600 bg-zinc-700/50 px-4 py-2.5 text-white placeholder-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                        className="w-full rounded-lg border border-zinc-600 bg-zinc-700/50 px-4 py-2.5 text-white placeholder-zinc-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
                     />
                 </div>
 
@@ -133,7 +133,7 @@ export default function LoginForm() {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Enter your password"
                             required
-                            className="w-full rounded-lg border border-zinc-600 bg-zinc-700/50 px-4 py-2.5 text-white placeholder-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors pr-10"
+                            className="w-full rounded-lg border border-zinc-600 bg-zinc-700/50 px-4 py-2.5 text-white placeholder-zinc-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors pr-10"
                         />
                         <button
                             type="button"
@@ -148,7 +148,7 @@ export default function LoginForm() {
                 <button
                     type="submit"
                     disabled={loading || socialLoading !== null}
-                    className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 py-2.5 font-semibold text-white transition-all hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 py-2.5 font-semibold text-white transition-all hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20"
                 >
                     {loading ? (
                         <span className="flex items-center justify-center gap-2">
@@ -166,7 +166,7 @@ export default function LoginForm() {
 
             <p className="mt-6 text-center text-sm text-zinc-400">
                 Don&apos;t have an account?{" "}
-                <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+                <Link href="/register" className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
                     Create account
                 </Link>
             </p>

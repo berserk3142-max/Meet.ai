@@ -11,9 +11,11 @@ export default function AuthLayout({
                 {/* Logo */}
                 <div className="flex justify-center mb-8">
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                            <span className="text-white text-2xl font-bold">M</span>
-                        </div>
+                        <img
+                            src="/logo.svg"
+                            alt="Meet.ai Logo"
+                            className="w-14 h-10"
+                        />
                         <span className="text-3xl font-bold text-white">Meet.ai</span>
                     </div>
                 </div>

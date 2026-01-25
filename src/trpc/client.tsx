@@ -23,20 +23,37 @@ function getBaseUrl() {
 }
 
 /**
+ * Create query client with default options
+ */
+function makeQueryClient() {
+    return new QueryClient({
+        defaultOptions: {
+            queries: {
+                staleTime: 5 * 1000,
+                refetchOnWindowFocus: false,
+            },
+        },
+    });
+}
+
+let browserQueryClient: QueryClient | undefined = undefined;
+
+function getQueryClient() {
+    if (typeof window === "undefined") {
+        // Server: always make a new query client
+        return makeQueryClient();
+    } else {
+        // Browser: make a new query client if we don't already have one
+        if (!browserQueryClient) browserQueryClient = makeQueryClient();
+        return browserQueryClient;
+    }
+}
+
+/**
  * tRPC Provider wrapper for client components
  */
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
-    const [queryClient] = useState(
-        () =>
-            new QueryClient({
-                defaultOptions: {
-                    queries: {
-                        staleTime: 5 * 1000, // 5 seconds
-                        refetchOnWindowFocus: false,
-                    },
-                },
-            })
-    );
+    const queryClient = getQueryClient();
 
     const [trpcClient] = useState(() =>
         trpc.createClient({

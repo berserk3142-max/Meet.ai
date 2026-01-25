@@ -7,9 +7,17 @@ import { auth } from "@/lib/auth";
  * tRPC Context - Available in all procedures
  */
 export const createTRPCContext = async () => {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    let session = null;
+
+    try {
+        session = await auth.api.getSession({
+            headers: await headers(),
+        });
+    } catch (error) {
+        // Session retrieval failed - user is not authenticated
+        // This is expected for unauthenticated requests
+        console.log("Session not found or expired");
+    }
 
     return {
         session,

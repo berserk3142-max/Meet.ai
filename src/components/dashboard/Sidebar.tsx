@@ -4,10 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
 import { sidebarItems, bottomItems } from "@/modules/dashboard/sidebar-items";
-import { LogOut, Sparkles } from "lucide-react";
+import { LogOut, Search, Sparkles } from "lucide-react";
+import { useCommand } from "./CommandProvider";
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const { open: openCommand } = useCommand();
 
     const handleLogout = async () => {
         await signOut();
@@ -27,6 +29,18 @@ export default function Sidebar() {
                         Meet.ai
                     </span>
                 </Link>
+            </div>
+
+            {/* Search Button */}
+            <div className="p-4 border-b border-zinc-800/50">
+                <button
+                    onClick={openCommand}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-zinc-400 bg-zinc-800/50 border border-zinc-700/50 rounded-xl hover:bg-zinc-800 hover:text-white transition-all duration-200"
+                >
+                    <Search className="w-4 h-4" />
+                    <span className="flex-1 text-left">Search...</span>
+                    <kbd className="px-1.5 py-0.5 text-xs bg-zinc-700 text-zinc-500 rounded">⌘K</kbd>
+                </button>
             </div>
 
             {/* Navigation */}

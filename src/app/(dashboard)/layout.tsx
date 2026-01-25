@@ -2,26 +2,38 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import Sidebar from "@/components/dashboard/Sidebar";
+import { CommandProvider } from "@/components/dashboard/CommandProvider";
 
 export default async function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    let session = null;
+
+    try {
+        session = await auth.api.getSession({
+            headers: await headers(),
+        });
+    } catch (error) {
+        // Session retrieval failed - redirect to login
+        console.error("Failed to get session:", error);
+        redirect("/login");
+    }
 
     if (!session) {
         redirect("/login");
     }
 
     return (
-        <div className="flex h-screen bg-zinc-950">
-            <Sidebar />
-            <main className="flex-1 overflow-auto">
-                {children}
-            </main>
-        </div>
+        <CommandProvider>
+            <div className="flex h-screen bg-zinc-950">
+                <Sidebar />
+                <main className="flex-1 overflow-auto">
+                    {children}
+                </main>
+            </div>
+        </CommandProvider>
     );
 }
+

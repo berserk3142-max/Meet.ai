@@ -4,10 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
 import { sidebarItems, bottomItems } from "@/modules/dashboard/sidebar-items";
-import { LogOut } from "lucide-react";
+import { LogOut, Search } from "lucide-react";
+import { useCommand } from "./CommandProvider";
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const { open: openCommand } = useCommand();
 
     const handleLogout = async () => {
         await signOut();
@@ -24,6 +26,18 @@ export default function Sidebar() {
                 </Link>
             </div>
 
+            {/* Search Button */}
+            <div className="p-4 border-b border-zinc-800">
+                <button
+                    onClick={openCommand}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-zinc-400 bg-zinc-800/50 border border-zinc-700 rounded-lg hover:bg-zinc-800 hover:text-white transition-colors"
+                >
+                    <Search className="w-4 h-4" />
+                    <span className="flex-1 text-left">Search...</span>
+                    <kbd className="px-1.5 py-0.5 text-xs bg-zinc-700 text-zinc-500 rounded">⌘K</kbd>
+                </button>
+            </div>
+
             {/* Navigation */}
             <nav className="flex-1 p-4">
                 <ul className="space-y-2">
@@ -37,8 +51,8 @@ export default function Sidebar() {
                                 <Link
                                     href={item.href}
                                     className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${isActive
-                                            ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white border border-blue-500/30"
-                                            : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                                        ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white border border-blue-500/30"
+                                        : "text-zinc-400 hover:text-white hover:bg-zinc-800"
                                         }`}
                                 >
                                     <Icon className="w-5 h-5" />
@@ -62,8 +76,8 @@ export default function Sidebar() {
                                 <Link
                                     href={item.href}
                                     className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${isActive
-                                            ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white border border-blue-500/30"
-                                            : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                                        ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white border border-blue-500/30"
+                                        : "text-zinc-400 hover:text-white hover:bg-zinc-800"
                                         }`}
                                 >
                                     <Icon className="w-5 h-5" />

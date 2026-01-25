@@ -1,23 +1,81 @@
-export default function AgentsPage() {
-    return (
-        <div className="p-8">
-            <div className="max-w-4xl">
-                <h1 className="text-4xl font-bold text-white mb-2">AI Agents</h1>
-                <p className="text-zinc-400 mb-8">Create and manage your AI meeting assistants.</p>
+"use client";
 
-                {/* Empty State */}
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center">
-                    <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
+import { useState } from "react";
+import { trpc } from "@/trpc/client";
+import { AgentsListHeader } from "@/components/agents/AgentsListHeader";
+import { AgentsDataTable } from "@/components/agents/AgentsDataTable";
+import { AgentsList } from "@/components/agents/AgentsList";
+import { AgentsLoadingSkeleton } from "@/components/agents/AgentsLoadingSkeleton";
+import { AgentsError } from "@/components/agents/AgentsError";
+import { LayoutGrid, Table } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+type ViewMode = "table" | "cards";
+
+export default function AgentsPage() {
+    const [viewMode, setViewMode] = useState<ViewMode>("table");
+    const { data: agents, isLoading, error, refetch } = trpc.agents.getAll.useQuery();
+
+    return (
+        <div className="p-6 md:p-8">
+            <div className="max-w-7xl mx-auto">
+                {/* Header with view toggle */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                    <AgentsListHeader
+                        agentCount={agents?.length}
+                        onNewAgent={() => {
+                            // Trigger create dialog - handled by child components
+                            const event = new CustomEvent("openCreateAgent");
+                            window.dispatchEvent(event);
+                        }}
+                    />
+
+                    {/* View mode toggle */}
+                    <div className="flex items-center gap-1 bg-zinc-800 rounded-lg p-1">
+                        <button
+                            onClick={() => setViewMode("table")}
+                            className={cn(
+                                "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                                viewMode === "table"
+                                    ? "bg-zinc-700 text-white"
+                                    : "text-zinc-400 hover:text-white"
+                            )}
+                        >
+                            <Table className="w-4 h-4" />
+                            <span className="hidden sm:inline">Table</span>
+                        </button>
+                        <button
+                            onClick={() => setViewMode("cards")}
+                            className={cn(
+                                "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                                viewMode === "cards"
+                                    ? "bg-zinc-700 text-white"
+                                    : "text-zinc-400 hover:text-white"
+                            )}
+                        >
+                            <LayoutGrid className="w-4 h-4" />
+                            <span className="hidden sm:inline">Cards</span>
+                        </button>
                     </div>
-                    <h2 className="text-xl font-semibold text-white mb-2">No agents yet</h2>
-                    <p className="text-zinc-400 mb-6">Create your first AI agent to automate meetings.</p>
-                    <button className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all">
-                        Create Agent
-                    </button>
                 </div>
+
+                {/* Loading state */}
+                {isLoading && <AgentsLoadingSkeleton />}
+
+                {/* Error state */}
+                {error && <AgentsError message={error.message} onRetry={() => refetch()} />}
+
+                {/* Content based on view mode */}
+                {!isLoading && !error && (
+                    viewMode === "table" ? (
+                        <AgentsDataTable
+                            agents={agents || []}
+                            onRefresh={refetch}
+                        />
+                    ) : (
+                        <AgentsList />
+                    )
+                )}
             </div>
         </div>
     );

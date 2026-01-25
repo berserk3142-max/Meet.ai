@@ -53,3 +53,16 @@ export const verification = pgTable("verification", {
     createdAt: timestamp("createdAt"),
     updatedAt: timestamp("updatedAt"),
 });
+
+// Agents table
+export const agent = pgTable("agent", {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    description: text("description"),
+    status: text("status").notNull().default("active"), // active, inactive, archived
+    createdAt: timestamp("createdAt").notNull(),
+    updatedAt: timestamp("updatedAt").notNull(),
+    userId: text("userId")
+        .notNull()
+        .references(() => user.id),
+});

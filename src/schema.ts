@@ -66,3 +66,21 @@ export const agent = pgTable("agent", {
         .notNull()
         .references(() => user.id),
 });
+
+// Meetings table
+export const meeting = pgTable("meeting", {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    status: text("status").notNull().default("upcoming"), // upcoming, active, completed, processing, cancelled
+    startedAt: timestamp("startedAt"),
+    endedAt: timestamp("endedAt"),
+    createdAt: timestamp("createdAt").notNull(),
+    updatedAt: timestamp("updatedAt").notNull(),
+    // Relations
+    userId: text("userId")
+        .notNull()
+        .references(() => user.id),
+    agentId: text("agentId")
+        .notNull()
+        .references(() => agent.id),
+});

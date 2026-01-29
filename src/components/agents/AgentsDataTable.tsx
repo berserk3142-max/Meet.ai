@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { AgentsEmptyState } from "@/components/ui/empty-state";
 import { AgentDialog } from "./AgentDialog";
@@ -19,10 +20,12 @@ interface AgentsDataTableProps {
  * AgentsDataTable - Agents displayed in a professional data table
  */
 export function AgentsDataTable({ agents, onRefresh }: AgentsDataTableProps) {
+    const router = useRouter();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
     const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
+
 
     // Mutations
     const createMutation = trpc.agents.create.useMutation({
@@ -212,7 +215,8 @@ export function AgentsDataTable({ agents, onRefresh }: AgentsDataTableProps) {
                 searchKeys={["name", "description"] as (keyof Agent)[]}
                 getRowKey={(agent) => agent.id}
                 onRowClick={(agent) => {
-                    // Navigate to agent details on row click (optional)
+                    // Navigate to agent details on row click
+                    router.push(`/agents/${agent.id}`);
                 }}
                 emptyState={<AgentsEmptyState onCreateAgent={openCreateDialog} />}
             />

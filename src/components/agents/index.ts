@@ -7,7 +7,9 @@ export { AgentForm } from "./AgentForm";
 export { AgentDialog } from "./AgentDialog";
 export { AgentsDataTable } from "./AgentsDataTable";
 export { AgentsFilters, AgentsPagination } from "./AgentsFilters";
+export { AgentDetailView } from "./AgentDetailView";
 export { CreateAgentModal } from "./CreateAgentModal";
+
 
 
 

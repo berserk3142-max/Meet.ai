@@ -156,7 +156,13 @@ export const meetingsService = {
             .where(eq(agent.id, result.agentId))
             .limit(1);
 
-        return { ...result, agent: agentData };
+        // Calculate duration
+        let duration = null;
+        if (result.startedAt && result.endedAt) {
+            duration = result.endedAt.getTime() - result.startedAt.getTime();
+        }
+
+        return { ...result, agent: agentData, duration };
     },
 
     /**

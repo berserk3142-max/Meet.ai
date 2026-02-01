@@ -75,6 +75,10 @@ export const meeting = pgTable("meeting", {
     startedAt: timestamp("startedAt"),
     endedAt: timestamp("endedAt"),
     callId: text("callId"), // Stream Video call ID
+    // AI-generated content
+    summary: text("summary"), // JSON string with summary, keyPoints, actionItems
+    transcript: text("transcript"), // JSON string with speaker-labeled transcript
+    recordingUrl: text("recordingUrl"), // Stream CDN recording URL
     createdAt: timestamp("createdAt").notNull(),
     updatedAt: timestamp("updatedAt").notNull(),
     // Relations

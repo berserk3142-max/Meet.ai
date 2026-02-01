@@ -10,6 +10,7 @@ interface MeetingData {
     name: string;
     status: string;
     callId?: string | null;
+    recordingUrl?: string | null;
     createdAt: Date;
     startedAt: Date | null;
     endedAt: Date | null;
@@ -195,60 +196,37 @@ export function CompletedMeetingView({ meeting, onDelete, isLoading }: StateView
     return (
         <div className="space-y-6">
             {/* State Indicator */}
-            <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
-                <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <CheckCircle2 className="w-6 h-6 text-green-400" />
-                </div>
-                <div>
-                    <h3 className="text-lg font-semibold text-green-400">Meeting Completed</h3>
-                    <p className="text-sm text-zinc-400">
-                        Finished on {meeting.endedAt ? new Date(meeting.endedAt).toLocaleDateString() : "—"}
-                    </p>
-                </div>
-            </div>
-
-            {/* Summary Section */}
-            <div className="bg-zinc-950/50 rounded-xl border border-zinc-800/50 overflow-hidden">
-                <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-zinc-400" />
-                        <h3 className="font-medium text-white">Meeting Summary</h3>
+            <div className="flex items-center justify-between p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
+                <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <CheckCircle2 className="w-6 h-6 text-green-400" />
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
-                            Copy
-                        </Button>
-                        <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
-                            Export
-                        </Button>
+                    <div>
+                        <h3 className="text-lg font-semibold text-green-400">Meeting Completed</h3>
+                        <p className="text-sm text-zinc-400">
+                            Finished on {meeting.endedAt ? new Date(meeting.endedAt).toLocaleDateString() : "—"}
+                        </p>
                     </div>
                 </div>
-                <div className="p-6 min-h-[200px] text-zinc-400 italic">
-                    <p>Meeting summary will appear here once the AI processing is complete.</p>
-                    <p className="mt-4 text-sm text-zinc-500">This is a placeholder — in production, this would show:</p>
-                    <ul className="list-disc list-inside mt-2 text-sm text-zinc-500 space-y-1">
-                        <li>Key discussion points</li>
-                        <li>Action items</li>
-                        <li>Decisions made</li>
-                        <li>Follow-up tasks</li>
-                    </ul>
-                </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center justify-end">
                 <Button
                     onClick={onDelete}
                     disabled={isLoading}
                     variant="outline"
+                    size="sm"
                     className="border-red-900/30 text-red-400 hover:bg-red-900/20 hover:text-red-300"
                 >
                     Delete Meeting
                 </Button>
             </div>
+
+            {/* Tabs for Summary, Transcript, Recording */}
+            <MeetingTabsComponent meetingId={meeting.id} recordingUrl={meeting.recordingUrl} />
         </div>
     );
 }
+
+// Import MeetingTabs dynamically to avoid circular dependencies
+import { MeetingTabs as MeetingTabsComponent } from "./MeetingTabs";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CANCELLED STATE

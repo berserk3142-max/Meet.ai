@@ -111,4 +111,56 @@ export const meetingsRouter = router({
             const count = await meetingsService.getCountByAgentId(input.agentId, ctx.user.id);
             return { count };
         }),
+
+    /**
+     * Get meeting transcript
+     */
+    getTranscript: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .query(async ({ ctx, input }) => {
+            const meeting = await meetingsService.getById(input.id, ctx.user.id);
+
+            if (!meeting) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Meeting not found",
+                });
+            }
+
+            // Parse transcript JSON if available
+            const transcriptData = meeting.transcript
+                ? JSON.parse(meeting.transcript)
+                : null;
+
+            return {
+                transcript: transcriptData,
+                hasTranscript: !!meeting.transcript,
+            };
+        }),
+
+    /**
+     * Get meeting summary
+     */
+    getSummary: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .query(async ({ ctx, input }) => {
+            const meeting = await meetingsService.getById(input.id, ctx.user.id);
+
+            if (!meeting) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Meeting not found",
+                });
+            }
+
+            // Parse summary JSON if available
+            const summaryData = meeting.summary
+                ? JSON.parse(meeting.summary)
+                : null;
+
+            return {
+                summary: summaryData,
+                hasSummary: !!meeting.summary,
+            };
+        }),
 });

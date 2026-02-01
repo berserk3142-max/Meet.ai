@@ -29,7 +29,7 @@ function AgentsPageContent() {
     // Fetch agents with filters
     const { data, isLoading, error, refetch } = trpc.agents.getMany.useQuery({
         search,
-        status,
+        status: status as any,
         page,
         pageSize: 10,
     });

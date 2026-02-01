@@ -83,8 +83,8 @@ export function ResponsiveDialog({
     }
 
     return (
-        <Dialog isOpen={isOpen} onClose={onClose} className={className}>
-            <DialogContent>
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className={className}>
                 {(title || description) && (
                     <DialogHeader>
                         {title && <DialogTitle>{title}</DialogTitle>}

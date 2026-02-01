@@ -42,7 +42,18 @@ export const meetingsService = {
                     .from(agent)
                     .where(eq(agent.id, m.agentId))
                     .limit(1);
-                return { ...m, agent: agentData };
+
+                // Calculate duration in milliseconds
+                let duration = null;
+                if (m.startedAt && m.endedAt) {
+                    duration = m.endedAt.getTime() - m.startedAt.getTime();
+                }
+
+                return {
+                    ...m,
+                    agent: agentData,
+                    duration,
+                };
             })
         );
 

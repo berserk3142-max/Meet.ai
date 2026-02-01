@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { CreateMeetingInput, UpdateMeetingInput } from "@/modules/meetings";
+import { AgentCommandSelect } from "./AgentCommandSelect";
 import type { Agent } from "@/modules/agents";
 
 interface MeetingFormProps {
@@ -115,32 +116,13 @@ export function MeetingForm({
                 </p>
             </div>
 
-            {/* Agent selection field */}
-            <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">
-                    Agent <span className="text-red-400">*</span>
-                </label>
-                <select
-                    value={agentId}
-                    onChange={(e) => {
-                        setAgentId(e.target.value);
-                        setValidationError(null);
-                    }}
-                    className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
-                >
-                    <option value="">Select an agent...</option>
-                    {agents.map((agent) => (
-                        <option key={agent.id} value={agent.id}>
-                            {agent.name}
-                        </option>
-                    ))}
-                </select>
-                {agents.length === 0 && (
-                    <p className="mt-1 text-xs text-yellow-500">
-                        No agents available. Create an agent first.
-                    </p>
-                )}
-            </div>
+            <label className="block text-sm font-medium text-zinc-300 mb-2">
+                Agent <span className="text-red-400">*</span>
+            </label>
+            <AgentCommandSelect value={agentId} onChange={setAgentId} />
+            {agentId === "" && validationError?.includes("agent") && (
+                <p className="mt-1 text-xs text-red-500">{validationError}</p>
+            )}
 
             {/* Status field (only in edit mode) */}
             {mode === "edit" && (

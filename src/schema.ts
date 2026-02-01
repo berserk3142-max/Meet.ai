@@ -74,6 +74,7 @@ export const meeting = pgTable("meeting", {
     status: text("status").notNull().default("upcoming"), // upcoming, active, completed, processing, cancelled
     startedAt: timestamp("startedAt"),
     endedAt: timestamp("endedAt"),
+    callId: text("callId"), // Stream Video call ID
     createdAt: timestamp("createdAt").notNull(),
     updatedAt: timestamp("updatedAt").notNull(),
     // Relations

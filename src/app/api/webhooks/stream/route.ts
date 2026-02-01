@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { meetingEventsService } from "@/modules/meetings/meetings.events";
+import { inngest } from "@/lib/inngest";
+import { db } from "@/db";
+import { meeting } from "@/schema";
+import { eq } from "drizzle-orm";
 
 const STREAM_API_SECRET = process.env.STREAM_API_SECRET!;
 
@@ -25,8 +28,20 @@ function verifyWebhookSignature(body: string, signature: string): boolean {
 }
 
 /**
+ * Get meeting by callId
+ */
+async function getMeetingByCallId(callId: string) {
+    const [result] = await db
+        .select()
+        .from(meeting)
+        .where(eq(meeting.callId, callId))
+        .limit(1);
+    return result;
+}
+
+/**
  * Stream Video Webhook Handler
- * Receives events from Stream when call state changes
+ * Receives events from Stream and triggers Inngest background jobs
  */
 export async function POST(request: NextRequest) {
     try {
@@ -53,7 +68,16 @@ export async function POST(request: NextRequest) {
             case "call.started": {
                 const callId = event.call?.id || event.call_cid?.split(":")[1];
                 if (callId) {
-                    await meetingEventsService.onCallStarted(callId);
+                    // Update meeting status directly (quick operation)
+                    await db
+                        .update(meeting)
+                        .set({
+                            status: "active",
+                            startedAt: new Date(),
+                            updatedAt: new Date(),
+                        })
+                        .where(eq(meeting.callId, callId));
+                    console.log(`[Webhook] Meeting with callId ${callId} → active`);
                 }
                 break;
             }
@@ -62,7 +86,58 @@ export async function POST(request: NextRequest) {
             case "call.ended": {
                 const callId = event.call?.id || event.call_cid?.split(":")[1];
                 if (callId) {
-                    await meetingEventsService.onCallEnded(callId);
+                    const meetingData = await getMeetingByCallId(callId);
+                    if (meetingData) {
+                        // Trigger background job for processing
+                        await inngest.send({
+                            name: "meeting/call.ended",
+                            data: {
+                                callId,
+                                meetingId: meetingData.id,
+                            },
+                        });
+                        console.log(`[Webhook] Triggered background job for meeting ${meetingData.id}`);
+                    }
+                }
+                break;
+            }
+
+            case "call.transcription_ready": {
+                const callId = event.call?.id || event.call_cid?.split(":")[1];
+                const transcriptUrl = event.transcription?.url;
+                if (callId) {
+                    const meetingData = await getMeetingByCallId(callId);
+                    if (meetingData) {
+                        await inngest.send({
+                            name: "meeting/transcription.ready",
+                            data: {
+                                callId,
+                                meetingId: meetingData.id,
+                                transcriptUrl,
+                            },
+                        });
+                        console.log(`[Webhook] Transcription ready for meeting ${meetingData.id}`);
+                    }
+                }
+                break;
+            }
+
+            case "call.recording_ready": {
+                const callId = event.call?.id || event.call_cid?.split(":")[1];
+                const recordingUrl = event.recording?.url;
+                if (callId && recordingUrl) {
+                    const meetingData = await getMeetingByCallId(callId);
+                    if (meetingData) {
+                        await inngest.send({
+                            name: "meeting/recording.ready",
+                            data: {
+                                callId,
+                                meetingId: meetingData.id,
+                                recordingUrl,
+                            },
+                        });
+                        console.log(`[Webhook] Recording ready for meeting ${meetingData.id}`);
+                    }
                 }
                 break;
             }

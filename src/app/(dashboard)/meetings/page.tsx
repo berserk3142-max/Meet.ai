@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { trpc } from "@/trpc/client";
-import { MeetingsDataTable, MeetingDialog } from "@/components/meetings";
-import { Video, Plus, Loader2 } from "lucide-react";
+import { MeetingsDataTable, MeetingDialog, MeetingsHeader } from "@/components/meetings";
+import { Loader2 } from "lucide-react";
 import type { CreateMeetingInput } from "@/modules/meetings";
 
 export default function MeetingsPage() {
@@ -23,9 +23,10 @@ export default function MeetingsPage() {
         },
     });
 
-    const handleCreate = (data: CreateMeetingInput) => {
-        createMutation.mutate(data);
+    const handleCreate = (data: CreateMeetingInput | import("@/modules/meetings").UpdateMeetingInput) => {
+        createMutation.mutate(data as CreateMeetingInput);
     };
+
 
     const isLoading = meetingsLoading || agentsLoading;
 
@@ -33,20 +34,7 @@ export default function MeetingsPage() {
         <div className="p-6 md:p-8">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Meetings</h1>
-                        <p className="text-zinc-400">Manage your video meetings and recordings.</p>
-                    </div>
-                    <button
-                        onClick={() => setIsCreateDialogOpen(true)}
-                        disabled={!agents || agents.length === 0}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg font-medium hover:from-emerald-500 hover:to-teal-500 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <Plus className="w-5 h-5" />
-                        New Meeting
-                    </button>
-                </div>
+                <MeetingsHeader onNew={() => setIsCreateDialogOpen(true)} />
 
                 {/* Loading State */}
                 {isLoading && (

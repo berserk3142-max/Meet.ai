@@ -125,6 +125,7 @@ export function MeetingView({ meetingId }: MeetingViewProps) {
             id: meeting.id,
             name: meeting.name,
             status: meeting.status,
+            callId: meeting.callId,
             createdAt: meeting.createdAt,
             startedAt: meeting.startedAt,
             endedAt: meeting.endedAt,

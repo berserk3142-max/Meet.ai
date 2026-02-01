@@ -2,13 +2,14 @@
 
 import { Clock, Play, Loader2, CheckCircle2, XCircle, Calendar, FileText, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 // Types
 interface MeetingData {
     id: string;
     name: string;
     status: string;
+    callId?: string | null;
     createdAt: Date;
     startedAt: Date | null;
     endedAt: Date | null;
@@ -122,15 +123,26 @@ export function ActiveMeetingView({ meeting, onComplete, isLoading }: StateViewP
                     Your AI agent <span className="text-white font-medium">{meeting.agent?.name || "Agent"}</span> is actively
                     listening and taking notes.
                 </p>
-                <Button
-                    onClick={onComplete}
-                    disabled={isLoading}
-                    size="lg"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8"
-                >
-                    <CheckCircle2 className="w-5 h-5 mr-2" />
-                    End Meeting
-                </Button>
+                <div className="flex items-center gap-3">
+                    {meeting.callId && (
+                        <Link href={`/meetings/${meeting.id}/call`}>
+                            <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white px-8">
+                                <Video className="w-5 h-5 mr-2" />
+                                Join Video Call
+                            </Button>
+                        </Link>
+                    )}
+                    <Button
+                        onClick={onComplete}
+                        disabled={isLoading}
+                        size="lg"
+                        variant="outline"
+                        className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 px-8"
+                    >
+                        <CheckCircle2 className="w-5 h-5 mr-2" />
+                        End Meeting
+                    </Button>
+                </div>
             </div>
         </div>
     );

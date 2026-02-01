@@ -170,10 +170,14 @@ export const meetingsService = {
      */
     async create(data: CreateMeetingInput, userId: string) {
         const now = new Date();
+        // Generate unique call ID for video calls
+        const callId = `call_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
         const newMeeting = {
             id: nanoid(),
             ...data,
             userId,
+            callId,
             createdAt: now,
             updatedAt: now,
         };

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../init";
-import { meetingsService, createMeetingSchema, updateMeetingSchema } from "@/modules/meetings";
+import { meetingsService, createMeetingSchema, updateMeetingSchema, meetingsFilterSchema } from "@/modules/meetings";
 import { TRPCError } from "@trpc/server";
 
 export const meetingsRouter = router({
@@ -11,6 +11,19 @@ export const meetingsRouter = router({
         const meetings = await meetingsService.getAllByUserId(ctx.user.id);
         return meetings;
     }),
+
+    /**
+     * Get meetings with pagination and filters
+     */
+    getMany: protectedProcedure
+        .input(meetingsFilterSchema)
+        .query(async ({ ctx, input }) => {
+            const result = await meetingsService.getMany({
+                userId: ctx.user.id,
+                ...input,
+            });
+            return result;
+        }),
 
     /**
      * Get meetings by agent ID

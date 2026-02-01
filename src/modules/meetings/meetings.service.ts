@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { meeting, agent } from "@/schema";
-import { eq, and, desc, count } from "drizzle-orm";
+import { eq, and, desc, count, ilike } from "drizzle-orm";
 import type { CreateMeetingInput, UpdateMeetingInput } from "./meetings.types";
 import { nanoid } from "nanoid";
 
@@ -58,6 +58,72 @@ export const meetingsService = {
         );
 
         return meetingsWithAgents;
+    },
+
+    /**
+     * Get meetings with filters and pagination
+     */
+    async getMany({ userId, search, page = 1, pageSize = 10, status, agentId }: GetManyParams & { search?: string }) {
+        const offset = (page - 1) * pageSize;
+
+        // Build where conditions
+        const conditions = [eq(meeting.userId, userId)];
+
+        if (search) {
+            conditions.push(ilike(meeting.name, `%${search}%`));
+        }
+
+        if (status && status !== "all") {
+            // Cast string status to enum type if needed, or just let dizzle handle it (it's text in db usually)
+            conditions.push(eq(meeting.status, status as any));
+        }
+
+        if (agentId && agentId !== "all") {
+            conditions.push(eq(meeting.agentId, agentId));
+        }
+
+        // Get total count
+        const [countResult] = await db
+            .select({ count: count() })
+            .from(meeting)
+            .where(and(...conditions));
+
+        const total = countResult?.count || 0;
+
+        // Get data
+        const meetingsData = await db
+            .select()
+            .from(meeting)
+            .where(and(...conditions))
+            .limit(pageSize)
+            .offset(offset)
+            .orderBy(desc(meeting.createdAt));
+
+        // Join agents and calculate duration
+        const meetings = await Promise.all(
+            meetingsData.map(async (m) => {
+                const [agentData] = await db
+                    .select()
+                    .from(agent)
+                    .where(eq(agent.id, m.agentId))
+                    .limit(1);
+
+                let duration = null;
+                if (m.startedAt && m.endedAt) {
+                    duration = m.endedAt.getTime() - m.startedAt.getTime();
+                }
+
+                return { ...m, agent: agentData, duration };
+            })
+        );
+
+        return {
+            meetings,
+            total,
+            page,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize),
+        };
     },
 
     /**

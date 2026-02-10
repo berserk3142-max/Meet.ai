@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { CommandProvider } from "@/components/dashboard/CommandProvider";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
+import TrialStatusBanner from "@/components/dashboard/TrialStatusBanner";
 
 export default async function DashboardLayout({
     children,
@@ -32,6 +33,7 @@ export default async function DashboardLayout({
                 <Sidebar />
                 <div className="flex-1 flex flex-col overflow-hidden">
                     <DashboardNavbar user={session.user} />
+                    <TrialStatusBanner />
                     <main className="flex-1 overflow-auto">
                         {children}
                     </main>
@@ -40,3 +42,4 @@ export default async function DashboardLayout({
         </CommandProvider>
     );
 }
+

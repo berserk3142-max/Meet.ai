@@ -2,6 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../init";
 import { meetingsService, createMeetingSchema, updateMeetingSchema, meetingsFilterSchema } from "@/modules/meetings";
 import { TRPCError } from "@trpc/server";
+import { chatWithTranscript } from "@/lib/openai";
 
 export const meetingsRouter = router({
     /**
@@ -163,4 +164,89 @@ export const meetingsRouter = router({
                 hasSummary: !!meeting.summary,
             };
         }),
+
+    /**
+     * Get chat history for a meeting
+     */
+    getChatHistory: protectedProcedure
+        .input(z.object({ meetingId: z.string() }))
+        .query(async ({ ctx, input }) => {
+            const messages = await meetingsService.getChatHistory(input.meetingId, ctx.user.id);
+
+            if (messages === null) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Meeting not found",
+                });
+            }
+
+            return { messages };
+        }),
+
+    /**
+     * Send a chat message and get AI response
+     */
+    sendChatMessage: protectedProcedure
+        .input(z.object({
+            meetingId: z.string(),
+            message: z.string().min(1).max(2000),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            // 1. Verify meeting access and get meeting data
+            const meeting = await meetingsService.getById(input.meetingId, ctx.user.id);
+
+            if (!meeting) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Meeting not found",
+                });
+            }
+
+            if (meeting.status !== "completed") {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Chat is only available for completed meetings",
+                });
+            }
+
+            // 2. Save user message
+            await meetingsService.saveChatMessage(
+                input.meetingId,
+                ctx.user.id,
+                "user",
+                input.message
+            );
+
+            // 3. Get chat history for context
+            const chatHistory = await meetingsService.getChatHistory(input.meetingId, ctx.user.id);
+            const historyForAI = (chatHistory || []).map((msg) => ({
+                role: msg.role as "user" | "assistant",
+                content: msg.content,
+            }));
+
+            // 4. Get transcript and summary for AI context
+            const transcript = meeting.transcript || "";
+            const summary = meeting.summary || null;
+
+            // 5. Call AI with meeting context
+            const aiResponse = await chatWithTranscript({
+                transcript,
+                summary,
+                userMessage: input.message,
+                chatHistory: historyForAI,
+            });
+
+            // 6. Save assistant response
+            await meetingsService.saveChatMessage(
+                input.meetingId,
+                ctx.user.id,
+                "assistant",
+                aiResponse
+            );
+
+            return {
+                response: aiResponse,
+            };
+        }),
 });
+

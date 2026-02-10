@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../init";
-import { generateStreamToken, generateAvatar } from "@/lib/stream";
+import { generateStreamToken, generateAvatar, addAgentToCall } from "@/lib/stream";
+import { meetingsService } from "@/modules/meetings";
+import { createRealtimeSession } from "@/lib/openai-realtime";
 
 export const streamRouter = router({
     /**
@@ -18,4 +20,66 @@ export const streamRouter = router({
             userImage: ctx.user.image || avatar,
         };
     }),
+
+    /**
+     * Add AI agent to a call
+     * Called when user joins a meeting to bring the AI agent in
+     */
+    addAgentToCall: protectedProcedure
+        .input(z.object({
+            meetingId: z.string(),
+            callId: z.string(),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            // Get the meeting to find the associated agent
+            const meeting = await meetingsService.getById(input.meetingId, ctx.user.id);
+
+            if (!meeting || !meeting.agent) {
+                throw new Error("Meeting or agent not found");
+            }
+
+            // Add the AI agent to the call
+            const result = await addAgentToCall(
+                input.callId,
+                meeting.agent.id,
+                meeting.agent.name
+            );
+
+            return {
+                success: true,
+                agentId: meeting.agent.id,
+                agentName: meeting.agent.name,
+                agentUserId: result.agentUserId,
+            };
+        }),
+
+    /**
+     * Create a Realtime API session for voice AI
+     * Returns ephemeral token for client WebRTC connection
+     */
+    createRealtimeSession: protectedProcedure
+        .input(z.object({
+            meetingId: z.string(),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            // Get the meeting and agent
+            const meeting = await meetingsService.getById(input.meetingId, ctx.user.id);
+
+            if (!meeting || !meeting.agent) {
+                throw new Error("Meeting or agent not found");
+            }
+
+            try {
+                // Create Realtime session
+                const session = await createRealtimeSession(
+                    meeting.agent.name,
+                    meeting.agent.description || undefined
+                );
+
+                return session;
+            } catch (error: any) {
+                console.error("[Stream Router] Realtime session error:", error.message);
+                throw new Error("REALTIME_NOT_AVAILABLE");
+            }
+        }),
 });

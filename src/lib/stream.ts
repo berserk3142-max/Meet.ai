@@ -33,3 +33,65 @@ export function generateAvatar(name: string): string {
 export function generateCallId(): string {
     return `call_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 }
+
+/**
+ * Create or update an AI agent user in Stream
+ */
+export async function createAgentUser(agentId: string, agentName: string) {
+    try {
+        await streamServerClient.upsertUsers([
+            {
+                id: `agent_${agentId}`,
+                name: agentName,
+                role: "user",
+                custom: {
+                    isAI: true,
+                    agentId,
+                },
+                image: generateAvatar(agentName),
+            },
+        ]);
+        return `agent_${agentId}`;
+    } catch (error) {
+        console.error("[Stream] Failed to create agent user:", error);
+        throw error;
+    }
+}
+
+/**
+ * Add AI agent to a call as a participant
+ */
+export async function addAgentToCall(callId: string, agentId: string, agentName: string) {
+    try {
+        // First, create/update the agent user
+        const agentUserId = await createAgentUser(agentId, agentName);
+
+        // Get the call
+        const call = streamServerClient.video.call("default", callId);
+
+        // Update call members to include the AI agent
+        await call.updateCallMembers({
+            update_members: [
+                {
+                    user_id: agentUserId,
+                    role: "call_member",
+                },
+            ],
+        });
+
+        console.log(`[Stream] Added agent ${agentUserId} to call ${callId}`);
+        return { success: true, agentUserId };
+    } catch (error) {
+        console.error("[Stream] Failed to add agent to call:", error);
+        throw error;
+    }
+}
+
+/**
+ * Generate token for AI agent
+ */
+export function generateAgentToken(agentId: string): string {
+    const agentUserId = `agent_${agentId}`;
+    return generateStreamToken(agentUserId);
+}
+

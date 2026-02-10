@@ -13,7 +13,7 @@ import {
 } from "@stream-io/video-react-sdk";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import { trpc } from "@/trpc/client";
-import { Loader2, PhoneOff, AlertCircle } from "lucide-react";
+import { Loader2, PhoneOff, AlertCircle, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
@@ -27,8 +27,20 @@ export function CallView({ meetingId, callId }: CallViewProps) {
     const [client, setClient] = useState<StreamVideoClient | null>(null);
     const [call, setCall] = useState<ReturnType<StreamVideoClient["call"]> | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [agentJoined, setAgentJoined] = useState(false);
 
     const { data: tokenData, isLoading: tokenLoading, error: tokenError } = trpc.stream.generateToken.useQuery();
+
+    // Mutation to add AI agent to call
+    const addAgentMutation = trpc.stream.addAgentToCall.useMutation({
+        onSuccess: (data) => {
+            console.log(`[Call] AI Agent ${data.agentName} joined the call`);
+            setAgentJoined(true);
+        },
+        onError: (err) => {
+            console.error("[Call] Failed to add AI agent:", err);
+        },
+    });
 
     const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY!;
 
@@ -55,6 +67,9 @@ export function CallView({ meetingId, callId }: CallViewProps) {
                 await streamCall.join({ create: true });
 
                 setCall(streamCall);
+
+                // Add AI agent to the call
+                addAgentMutation.mutate({ meetingId, callId });
             } catch (err) {
                 console.error("Failed to initialize call:", err);
                 setError("Failed to connect to video call. Please try again.");
@@ -141,31 +156,47 @@ function CallUI({ onLeave, meetingId }: { onLeave: () => void; meetingId: string
     }
 
     return (
-        <div className="h-[calc(100vh-100px)] flex flex-col bg-zinc-950 rounded-xl overflow-hidden">
-            {/* Video Layout */}
-            <div className="flex-1 relative">
-                <SpeakerLayout />
-            </div>
+        <div className="h-[calc(100vh-100px)] flex bg-zinc-950 rounded-xl overflow-hidden">
+            {/* Main Video Area */}
+            <div className="flex-1 flex flex-col">
+                {/* Video Layout */}
+                <div className="flex-1 relative">
+                    <SpeakerLayout />
+                </div>
 
-            {/* Controls */}
-            <div className="p-4 bg-zinc-900 border-t border-zinc-800">
-                <div className="flex items-center justify-center gap-4">
-                    <CallControls onLeave={onLeave} />
+                {/* Controls */}
+                <div className="p-4 bg-zinc-900 border-t border-zinc-800">
+                    <div className="flex items-center justify-center gap-4">
+                        <CallControls onLeave={onLeave} />
+                    </div>
+                </div>
+
+                {/* Leave Button (Fallback) */}
+                <div className="absolute top-4 right-4 z-50">
+                    <Button
+                        onClick={onLeave}
+                        variant="destructive"
+                        size="sm"
+                        className="bg-red-600 hover:bg-red-700"
+                    >
+                        <PhoneOff className="w-4 h-4 mr-2" />
+                        Leave Call
+                    </Button>
                 </div>
             </div>
 
-            {/* Leave Button (Fallback) */}
-            <div className="absolute top-4 right-4 z-50">
-                <Button
-                    onClick={onLeave}
-                    variant="destructive"
-                    size="sm"
-                    className="bg-red-600 hover:bg-red-700"
-                >
-                    <PhoneOff className="w-4 h-4 mr-2" />
-                    Leave Call
-                </Button>
+            {/* AI Agent Sidebar */}
+            <div className="w-80 border-l border-zinc-800 p-4 bg-zinc-900/50 flex flex-col">
+                <h3 className="text-sm font-medium text-zinc-400 mb-4 flex items-center gap-2">
+                    <Bot className="w-4 h-4" />
+                    AI Voice Assistant
+                </h3>
+                <AIVoiceAgent meetingId={meetingId} />
             </div>
         </div>
     );
 }
+
+// Import AIVoiceAgent
+import { AIVoiceAgent } from "./AIVoiceAgent";
+

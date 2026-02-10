@@ -89,3 +89,17 @@ export const meeting = pgTable("meeting", {
         .notNull()
         .references(() => agent.id),
 });
+
+// Chat Messages table (AI chat per meeting)
+export const chatMessage = pgTable("chat_message", {
+    id: text("id").primaryKey(),
+    meetingId: text("meetingId")
+        .notNull()
+        .references(() => meeting.id, { onDelete: "cascade" }),
+    userId: text("userId")
+        .notNull()
+        .references(() => user.id),
+    role: text("role").notNull(), // "user" | "assistant"
+    content: text("content").notNull(),
+    createdAt: timestamp("createdAt").notNull(),
+});

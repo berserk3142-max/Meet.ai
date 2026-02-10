@@ -12,6 +12,8 @@ export type MeetingEvents = {
         data: {
             callId: string;
             meetingId: string;
+            duration?: number; // Call duration in seconds
+            participantsCount?: number; // Number of participants
         };
     };
     "meeting/transcription.ready": {
@@ -27,6 +29,9 @@ export type MeetingEvents = {
             callId: string;
             meetingId: string;
             recordingUrl: string;
+            format?: string; // e.g., "mp4", "webm"
+            size?: number; // File size in bytes
+            duration?: number; // Recording duration in seconds
         };
     };
     "meeting/summarize": {

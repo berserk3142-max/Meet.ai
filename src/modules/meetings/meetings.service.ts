@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { meeting, agent } from "@/schema";
-import { eq, and, desc, count, ilike } from "drizzle-orm";
+import { meeting, agent, chatMessage } from "@/schema";
+import { eq, and, desc, asc, count, ilike } from "drizzle-orm";
 import type { CreateMeetingInput, UpdateMeetingInput } from "./meetings.types";
 import { nanoid } from "nanoid";
 
@@ -224,5 +224,41 @@ export const meetingsService = {
             .where(and(eq(meeting.agentId, agentId), eq(meeting.userId, userId)));
 
         return result?.count || 0;
+    },
+
+    /**
+     * Get chat history for a meeting (with ownership check)
+     */
+    async getChatHistory(meetingId: string, userId: string) {
+        // Verify meeting ownership
+        const meetingRecord = await this.getById(meetingId, userId);
+        if (!meetingRecord) return null;
+
+        const messages = await db
+            .select()
+            .from(chatMessage)
+            .where(eq(chatMessage.meetingId, meetingId))
+            .orderBy(asc(chatMessage.createdAt));
+
+        return messages;
+    },
+
+    /**
+     * Save a chat message
+     */
+    async saveChatMessage(meetingId: string, userId: string, role: "user" | "assistant", content: string) {
+        const [result] = await db
+            .insert(chatMessage)
+            .values({
+                id: nanoid(),
+                meetingId,
+                userId,
+                role,
+                content,
+                createdAt: new Date(),
+            })
+            .returning();
+
+        return result;
     },
 };

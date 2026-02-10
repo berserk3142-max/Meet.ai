@@ -5,12 +5,13 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 interface CallPageProps {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export default async function CallPage({ params }: CallPageProps) {
+    const { id } = await params;
     const trpc = await api();
-    const meeting = await trpc.meetings.getById({ id: params.id });
+    const meeting = await trpc.meetings.getById({ id });
 
     if (!meeting) {
         redirect("/meetings");
@@ -18,7 +19,7 @@ export default async function CallPage({ params }: CallPageProps) {
 
     // If no callId, redirect back to meeting
     if (!meeting.callId) {
-        redirect(`/meetings/${params.id}`);
+        redirect(`/meetings/${id}`);
     }
 
     return (
@@ -27,7 +28,7 @@ export default async function CallPage({ params }: CallPageProps) {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 text-zinc-400 text-sm">
                     <Link
-                        href={`/meetings/${params.id}`}
+                        href={`/meetings/${id}`}
                         className="hover:text-white transition-colors flex items-center gap-1"
                     >
                         <ArrowLeft className="w-4 h-4" />
@@ -41,7 +42,7 @@ export default async function CallPage({ params }: CallPageProps) {
             </div>
 
             {/* Call View */}
-            <CallView meetingId={params.id} callId={meeting.callId} />
+            <CallView meetingId={id} callId={meeting.callId} />
         </div>
     );
 }

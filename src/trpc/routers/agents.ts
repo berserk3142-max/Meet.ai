@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../init";
 import { agentsService, createAgentSchema, updateAgentSchema, agentsFilterSchema } from "@/modules/agents";
+import { meetingsService } from "@/modules/meetings";
 import { TRPCError } from "@trpc/server";
 
 export const agentsRouter = router({
@@ -13,7 +14,7 @@ export const agentsRouter = router({
     }),
 
     /**
-     * Get agents with pagination and search
+     * Get agents with pagination, search, and per-agent meeting counts
      */
     getMany: protectedProcedure
         .input(agentsFilterSchema)
@@ -25,7 +26,22 @@ export const agentsRouter = router({
                 pageSize: input.pageSize,
                 status: input.status,
             });
-            return result;
+
+            // Add per-agent meeting counts in parallel
+            const agentsWithCounts = await Promise.all(
+                result.agents.map(async (agentItem) => {
+                    const meetingCount = await meetingsService.getCountByAgentId(
+                        agentItem.id,
+                        ctx.user.id
+                    );
+                    return { ...agentItem, meetingCount };
+                })
+            );
+
+            return {
+                ...result,
+                agents: agentsWithCounts,
+            };
         }),
 
     /**

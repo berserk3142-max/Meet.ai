@@ -66,3 +66,40 @@ export const agent = pgTable("agent", {
         .notNull()
         .references(() => user.id),
 });
+
+// Meetings table
+export const meeting = pgTable("meeting", {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    status: text("status").notNull().default("upcoming"), // upcoming, active, completed, processing, cancelled
+    startedAt: timestamp("startedAt"),
+    endedAt: timestamp("endedAt"),
+    callId: text("callId"), // Stream Video call ID
+    // AI-generated content
+    summary: text("summary"), // JSON string with summary, keyPoints, actionItems
+    transcript: text("transcript"), // JSON string with speaker-labeled transcript
+    recordingUrl: text("recordingUrl"), // Stream CDN recording URL
+    createdAt: timestamp("createdAt").notNull(),
+    updatedAt: timestamp("updatedAt").notNull(),
+    // Relations
+    userId: text("userId")
+        .notNull()
+        .references(() => user.id),
+    agentId: text("agentId")
+        .notNull()
+        .references(() => agent.id),
+});
+
+// Chat Messages table (AI chat per meeting)
+export const chatMessage = pgTable("chat_message", {
+    id: text("id").primaryKey(),
+    meetingId: text("meetingId")
+        .notNull()
+        .references(() => meeting.id, { onDelete: "cascade" }),
+    userId: text("userId")
+        .notNull()
+        .references(() => user.id),
+    role: text("role").notNull(), // "user" | "assistant"
+    content: text("content").notNull(),
+    createdAt: timestamp("createdAt").notNull(),
+});

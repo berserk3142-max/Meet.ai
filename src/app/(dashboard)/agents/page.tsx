@@ -9,7 +9,7 @@ import { AgentsLoadingSkeleton } from "@/components/agents/AgentsLoadingSkeleton
 import { AgentsError } from "@/components/agents/AgentsError";
 import { AgentDialog } from "@/components/agents/AgentDialog";
 import { AgentsEmptyState } from "@/components/ui/empty-state";
-import { Bot, MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
+import { Bot, MoreHorizontal, Edit, Trash2, Eye, Video } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { Agent, CreateAgentInput, UpdateAgentInput } from "@/modules/agents";
@@ -29,7 +29,7 @@ function AgentsPageContent() {
     // Fetch agents with filters
     const { data, isLoading, error, refetch } = trpc.agents.getMany.useQuery({
         search,
-        status,
+        status: status as any,
         page,
         pageSize: 10,
     });
@@ -151,6 +151,7 @@ function AgentsPageContent() {
                                             <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">Agent</th>
                                             <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">Description</th>
                                             <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">Status</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">Meetings</th>
                                             <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">Created</th>
                                             <th className="px-4 py-3 w-12"></th>
                                         </tr>
@@ -176,6 +177,12 @@ function AgentsPageContent() {
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <StatusBadge status={agent.status} />
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-zinc-300 bg-zinc-800 rounded-full">
+                                                        <Video className="w-3 h-3 text-zinc-500" />
+                                                        {(agent as any).meetingCount ?? 0}
+                                                    </span>
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <span className="text-zinc-400 text-sm">

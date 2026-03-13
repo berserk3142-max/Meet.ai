@@ -4,15 +4,7 @@ import { Search, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import UserButton from "./UserButton";
 
-interface DashboardNavbarProps {
-    user: {
-        name?: string | null;
-        email?: string | null;
-        image?: string | null;
-    };
-}
-
-export default function DashboardNavbar({ user }: DashboardNavbarProps) {
+export default function DashboardNavbar() {
     return (
         <header className="h-16 bg-zinc-900/50 backdrop-blur-sm border-b border-zinc-800/50 px-6 flex items-center justify-between sticky top-0 z-40">
             {/* Search Bar */}
@@ -44,7 +36,7 @@ export default function DashboardNavbar({ user }: DashboardNavbarProps) {
                 </button>
 
                 {/* User Button */}
-                <UserButton user={user} />
+                <UserButton />
             </div>
         </header>
     );

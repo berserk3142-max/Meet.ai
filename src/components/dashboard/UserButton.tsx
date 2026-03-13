@@ -1,131 +1,106 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { signOut } from "@/lib/auth-client";
+import { useSession, authClient } from "@/lib/auth-client";
 import {
     Sheet,
     SheetContent,
+    SheetTrigger,
     SheetHeader,
     SheetTitle,
-    SheetTrigger,
+    SheetDescription,
 } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Settings, LogOut, CreditCard, HelpCircle } from "lucide-react";
+import { useState } from "react";
+import { LogOut, User, CreditCard, Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-interface UserButtonProps {
-    user: {
-        name?: string | null;
-        email?: string | null;
-        image?: string | null;
-    };
-}
-
-export default function UserButton({ user }: UserButtonProps) {
-    const [open, setOpen] = useState(false);
+export default function UserButton() {
+    const { data } = useSession();
+    const user = data?.user;
     const router = useRouter();
+    const [open, setOpen] = useState(false);
 
-    const handleLogout = async () => {
-        await signOut();
-        setOpen(false);
-        window.location.href = "/login";
-    };
+    if (!user) return null;
 
-    const handleNavigation = (href: string) => {
-        setOpen(false);
-        router.push(href);
-    };
-
-    const getInitials = (name?: string | null) => {
+    const getInitials = (name: string | undefined) => {
         if (!name) return "U";
         return name
             .split(" ")
-            .map((n) => n[0])
+            .map((word) => word[0])
             .join("")
             .toUpperCase()
             .slice(0, 2);
     };
 
+    const handleSignOut = async () => {
+        await authClient.signOut();
+        router.push("/login");
+    };
+
     const menuItems = [
-        { label: "Profile", href: "/profile", icon: User },
-        { label: "Settings", href: "/settings", icon: Settings },
-        { label: "Billing", href: "/billing", icon: CreditCard },
-        { label: "Help", href: "/help", icon: HelpCircle },
+        { icon: User, label: "Profile", href: "/profile" },
+        { icon: CreditCard, label: "Billing", href: "/upgrade" },
+        { icon: Settings, label: "Settings", href: "/settings" },
     ];
 
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
                 <button className="relative group">
-                    <Avatar className="h-9 w-9 ring-2 ring-zinc-700 group-hover:ring-emerald-500/50 transition-all duration-200">
-                        <AvatarImage src={user.image || undefined} alt={user.name || "User"} />
-                        <AvatarFallback className="bg-gradient-to-br from-emerald-600 to-teal-600 text-white text-sm font-medium">
-                            {getInitials(user.name)}
-                        </AvatarFallback>
-                    </Avatar>
-                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-zinc-950" />
+                    <div className="w-10 h-10 bg-[#8B5CF6] border-2 border-white flex items-center justify-center text-white font-bold text-sm shadow-neo-sm hover:shadow-neo transition-all">
+                        {getInitials(user.name)}
+                    </div>
                 </button>
             </SheetTrigger>
-            <SheetContent className="w-80 bg-zinc-900 border-zinc-800 p-0">
-                <SheetHeader className="p-6 border-b border-zinc-800">
-                    <div className="flex items-center gap-4">
-                        <Avatar className="h-14 w-14 ring-2 ring-emerald-500/30">
-                            <AvatarImage src={user.image || undefined} alt={user.name || "User"} />
-                            <AvatarFallback className="bg-gradient-to-br from-emerald-600 to-teal-600 text-white text-lg font-medium">
-                                {getInitials(user.name)}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                            <SheetTitle className="text-white text-left truncate">
-                                {user.name || "User"}
-                            </SheetTitle>
-                            <p className="text-sm text-zinc-400 truncate">
-                                {user.email}
-                            </p>
-                        </div>
-                    </div>
+            <SheetContent className="w-80 bg-black border-l-[3px] border-white p-0">
+                <SheetHeader className="sr-only">
+                    <SheetTitle>User Menu</SheetTitle>
+                    <SheetDescription>Account options and settings</SheetDescription>
                 </SheetHeader>
 
+                {/* User Info */}
+                <div className="p-6 border-b-[3px] border-white">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-[#8B5CF6] border-2 border-white flex items-center justify-center text-white font-black text-lg">
+                            {getInitials(user.name)}
+                        </div>
+                        <div>
+                            <div className="font-bold text-white">{user.name}</div>
+                            <div className="text-xs text-gray-500 font-mono">{user.email}</div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Menu Items */}
-                <nav className="p-3">
-                    <ul className="space-y-1">
-                        {menuItems.map((item) => {
-                            const Icon = item.icon;
-                            return (
-                                <li key={item.href}>
-                                    <button
-                                        onClick={() => handleNavigation(item.href)}
-                                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800/70 transition-all duration-200 group"
-                                    >
-                                        <Icon className="w-5 h-5 text-zinc-500 group-hover:text-emerald-400 transition-colors" />
-                                        <span className="font-medium">{item.label}</span>
-                                    </button>
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </nav>
+                <div className="p-4 space-y-1">
+                    {menuItems.map((item) => (
+                        <button
+                            key={item.label}
+                            onClick={() => {
+                                setOpen(false);
+                                router.push(item.href);
+                            }}
+                            className="w-full flex items-center gap-3 p-3 text-gray-300 hover:bg-[#8B5CF6] hover:text-white font-bold transition-colors border-2 border-transparent hover:border-white"
+                        >
+                            <item.icon className="w-5 h-5" />
+                            {item.label}
+                        </button>
+                    ))}
+                </div>
 
-                {/* Divider */}
-                <div className="mx-3 border-t border-zinc-800" />
-
-                {/* Logout */}
-                <div className="p-3">
+                {/* Sign Out */}
+                <div className="p-4 border-t-[3px] border-white mt-auto">
                     <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-300 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 group"
+                        onClick={handleSignOut}
+                        className="w-full flex items-center gap-3 p-3 text-red-400 hover:bg-red-500 hover:text-white font-bold transition-colors border-2 border-transparent hover:border-white"
                     >
-                        <LogOut className="w-5 h-5 text-zinc-500 group-hover:text-red-400 transition-colors" />
-                        <span className="font-medium">Logout</span>
+                        <LogOut className="w-5 h-5" />
+                        Sign Out
                     </button>
                 </div>
 
                 {/* Footer */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-zinc-800 bg-zinc-900/80 backdrop-blur-sm">
-                    <div className="flex items-center justify-between text-xs text-zinc-500">
-                        <span>Meet.AI v1.0</span>
-                        <span>Free Plan</span>
-                    </div>
+                <div className="px-4 pb-4 text-[10px] text-gray-600 font-mono">
+                    Meet.ai v1.0 — Built with ♥
                 </div>
             </SheetContent>
         </Sheet>

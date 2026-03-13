@@ -6,16 +6,22 @@ import {
     StreamVideoClient,
     StreamCall,
     CallControls,
-    SpeakerLayout,
+    PaginatedGridLayout,
     StreamTheme,
     CallingState,
     useCallStateHooks,
+    DefaultParticipantViewUI,
+    ParticipantView,
+    useParticipantViewContext,
 } from "@stream-io/video-react-sdk";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
+import "./ai-tile.css";
 import { trpc } from "@/trpc/client";
-import { Loader2, PhoneOff, AlertCircle, Bot } from "lucide-react";
+import { Loader2, PhoneOff, AlertCircle, Bot, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useAIVoiceAgent } from "./AIVoiceAgent";
+import { AIParticipantTile } from "./AIParticipantTile";
 
 interface CallViewProps {
     meetingId: string;
@@ -27,7 +33,6 @@ export function CallView({ meetingId, callId }: CallViewProps) {
     const [client, setClient] = useState<StreamVideoClient | null>(null);
     const [call, setCall] = useState<ReturnType<StreamVideoClient["call"]> | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [agentJoined, setAgentJoined] = useState(false);
 
     const { data: tokenData, isLoading: tokenLoading, error: tokenError } = trpc.stream.generateToken.useQuery();
 
@@ -35,7 +40,6 @@ export function CallView({ meetingId, callId }: CallViewProps) {
     const addAgentMutation = trpc.stream.addAgentToCall.useMutation({
         onSuccess: (data) => {
             console.log(`[Call] AI Agent ${data.agentName} joined the call`);
-            setAgentJoined(true);
         },
         onError: (err) => {
             console.error("[Call] Failed to add AI agent:", err);
@@ -144,59 +148,106 @@ export function CallView({ meetingId, callId }: CallViewProps) {
     );
 }
 
-// Inner component that uses call hooks
+/**
+ * Inner component that uses call hooks.
+ * AI agent is rendered as a tile inside the participant grid.
+ */
 function CallUI({ onLeave, meetingId }: { onLeave: () => void; meetingId: string }) {
     const { useCallCallingState } = useCallStateHooks();
     const callingState = useCallCallingState();
     const router = useRouter();
+
+    // AI voice agent hook — manages the Realtime API WebRTC connection
+    const ai = useAIVoiceAgent(meetingId);
 
     if (callingState === CallingState.LEFT) {
         router.push(`/meetings/${meetingId}`);
         return null;
     }
 
+    /**
+     * Custom ParticipantViewUI that detects AI agent participants
+     * and renders the custom AI tile instead of a default video view.
+     */
+    const CustomParticipantViewUI = () => {
+        const { participant } = useParticipantViewContext();
+        const isAIAgent = participant.userId?.startsWith("agent_") ||
+            (participant.custom as any)?.isAI === true;
+
+        if (isAIAgent) {
+            return (
+                <AIParticipantTile
+                    agentName={ai.agentName}
+                    status={ai.status}
+                    isMuted={ai.isMuted}
+                />
+            );
+        }
+
+        return <DefaultParticipantViewUI />;
+    };
+
     return (
-        <div className="h-[calc(100vh-100px)] flex bg-zinc-950 rounded-xl overflow-hidden">
-            {/* Main Video Area */}
-            <div className="flex-1 flex flex-col">
-                {/* Video Layout */}
-                <div className="flex-1 relative">
-                    <SpeakerLayout />
-                </div>
+        <div className="h-[calc(100vh-100px)] flex flex-col bg-zinc-950 rounded-xl overflow-hidden relative">
+            {/* Video Grid — AI appears as a tile here */}
+            <div className="flex-1 relative">
+                <PaginatedGridLayout
+                    ParticipantViewUI={CustomParticipantViewUI}
+                />
+            </div>
 
-                {/* Controls */}
-                <div className="p-4 bg-zinc-900 border-t border-zinc-800">
-                    <div className="flex items-center justify-center gap-4">
-                        <CallControls onLeave={onLeave} />
-                    </div>
-                </div>
-
-                {/* Leave Button (Fallback) */}
-                <div className="absolute top-4 right-4 z-50">
-                    <Button
-                        onClick={onLeave}
-                        variant="destructive"
-                        size="sm"
-                        className="bg-red-600 hover:bg-red-700"
+            {/* AI Voice Controls — floating overlay */}
+            <div className="ai-floating-controls">
+                <Bot className="ai-ctrl-icon" style={{ color: "#a5b4fc" }} />
+                {ai.status === "idle" || ai.status === "error" || ai.status === "unavailable" ? (
+                    <button
+                        className="ai-ctrl-connect"
+                        onClick={ai.connect}
+                        disabled={ai.isConnecting}
                     >
-                        <PhoneOff className="w-4 h-4 mr-2" />
-                        Leave Call
-                    </Button>
+                        {ai.isConnecting ? "Connecting…" : "Connect AI"}
+                    </button>
+                ) : (
+                    <>
+                        <button
+                            className={`ai-ctrl-mute ${ai.isMuted ? "ai-ctrl-mute--active" : ""}`}
+                            onClick={ai.toggleMute}
+                        >
+                            {ai.isMuted ? <MicOff className="ai-ctrl-icon" /> : <Mic className="ai-ctrl-icon" />}
+                        </button>
+                        <button className="ai-ctrl-disconnect" onClick={ai.disconnect}>
+                            Disconnect AI
+                        </button>
+                    </>
+                )}
+            </div>
+
+            {/* Error banner */}
+            {ai.errorMessage && (
+                <div className="ai-error-banner">
+                    {ai.errorMessage}
+                </div>
+            )}
+
+            {/* Controls */}
+            <div className="p-4 bg-zinc-900 border-t border-zinc-800">
+                <div className="flex items-center justify-center gap-4">
+                    <CallControls onLeave={onLeave} />
                 </div>
             </div>
 
-            {/* AI Agent Sidebar */}
-            <div className="w-80 border-l border-zinc-800 p-4 bg-zinc-900/50 flex flex-col">
-                <h3 className="text-sm font-medium text-zinc-400 mb-4 flex items-center gap-2">
-                    <Bot className="w-4 h-4" />
-                    AI Voice Assistant
-                </h3>
-                <AIVoiceAgent meetingId={meetingId} />
+            {/* Leave Button (Fallback) */}
+            <div className="absolute top-4 right-4 z-50">
+                <Button
+                    onClick={onLeave}
+                    variant="destructive"
+                    size="sm"
+                    className="bg-red-600 hover:bg-red-700"
+                >
+                    <PhoneOff className="w-4 h-4 mr-2" />
+                    Leave Call
+                </Button>
             </div>
         </div>
     );
 }
-
-// Import AIVoiceAgent
-import { AIVoiceAgent } from "./AIVoiceAgent";
-

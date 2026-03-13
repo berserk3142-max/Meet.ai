@@ -7,33 +7,28 @@ interface AgentsListHeaderProps {
     onNewAgent: () => void;
 }
 
-/**
- * AgentsListHeader - Header with title, count, and New Agent button
- */
 export function AgentsListHeader({ agentCount, onNewAgent }: AgentsListHeaderProps) {
     return (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-            <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-xl flex items-center justify-center border border-blue-500/30">
-                    <Bot className="w-6 h-6 text-blue-400" />
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-[#8B5CF6] border-2 border-white flex items-center justify-center shadow-neo">
+                    <Bot className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-bold text-white">My Agents</h1>
-                    <p className="text-zinc-400 text-sm">
+                    <h1 className="text-5xl md:text-6xl font-display font-black text-white tracking-tight uppercase">
+                        My Agents
+                    </h1>
+                    <p className="text-gray-400 text-sm font-bold mt-2">
                         {agentCount !== undefined ? (
-                            agentCount === 0
-                                ? "No agents yet"
-                                : `${agentCount} agent${agentCount !== 1 ? 's' : ''} configured`
-                        ) : (
-                            "Loading..."
-                        )}
+                            agentCount === 0 ? "No agents yet" : `${agentCount} agent${agentCount !== 1 ? 's' : ''} configured`
+                        ) : "Loading..."}
                     </p>
                 </div>
             </div>
 
             <button
                 onClick={onNewAgent}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg shadow-blue-500/25"
+                className="flex items-center justify-center gap-2 px-6 py-4 bg-[#8B5CF6] text-white font-black text-sm uppercase tracking-wider border-[3px] border-white shadow-neo hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all neo-btn"
             >
                 <Plus className="w-5 h-5" />
                 <span>New Agent</span>

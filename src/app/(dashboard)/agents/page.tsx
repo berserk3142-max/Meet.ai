@@ -9,133 +9,95 @@ import { AgentsLoadingSkeleton } from "@/components/agents/AgentsLoadingSkeleton
 import { AgentsError } from "@/components/agents/AgentsError";
 import { AgentDialog } from "@/components/agents/AgentDialog";
 import { AgentsEmptyState } from "@/components/ui/empty-state";
-import { Bot, MoreHorizontal, Edit, Trash2, Eye, Video } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Eye, Video, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import type { Agent, CreateAgentInput, UpdateAgentInput } from "@/modules/agents";
 
 function AgentsPageContent() {
-    // URL state with NUQS
     const [search] = useQueryState("search", parseAsString.withDefault(""));
     const [status] = useQueryState("status", parseAsString.withDefault("all"));
     const [page] = useQueryState("page", parseAsInteger.withDefault(1));
 
-    // Dialog state
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
     const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
-    // Fetch agents with filters
     const { data, isLoading, error, refetch } = trpc.agents.getMany.useQuery({
-        search,
-        status: status as any,
-        page,
-        pageSize: 10,
+        search, status: status as any, page, pageSize: 10,
     });
 
-    // Mutations
     const createMutation = trpc.agents.create.useMutation({
-        onSuccess: () => {
-            setIsDialogOpen(false);
-            setSelectedAgent(null);
-            refetch();
-        },
+        onSuccess: () => { setIsDialogOpen(false); setSelectedAgent(null); refetch(); },
     });
-
     const updateMutation = trpc.agents.update.useMutation({
-        onSuccess: () => {
-            setIsDialogOpen(false);
-            setSelectedAgent(null);
-            refetch();
-        },
+        onSuccess: () => { setIsDialogOpen(false); setSelectedAgent(null); refetch(); },
     });
-
     const deleteMutation = trpc.agents.delete.useMutation({
-        onSuccess: () => {
-            refetch();
-        },
+        onSuccess: () => { refetch(); },
     });
 
-    const openCreateDialog = () => {
-        setDialogMode("create");
-        setSelectedAgent(null);
-        setIsDialogOpen(true);
-    };
-
-    const openEditDialog = (agent: Agent) => {
-        setDialogMode("edit");
-        setSelectedAgent(agent);
-        setIsDialogOpen(true);
-        setActiveMenu(null);
-    };
-
+    const openCreateDialog = () => { setDialogMode("create"); setSelectedAgent(null); setIsDialogOpen(true); };
+    const openEditDialog = (agent: Agent) => { setDialogMode("edit"); setSelectedAgent(agent); setIsDialogOpen(true); setActiveMenu(null); };
     const handleDelete = (agent: Agent) => {
-        if (confirm(`Are you sure you want to delete "${agent.name}"?`)) {
-            deleteMutation.mutate({ id: agent.id });
-        }
+        if (confirm(`Are you sure you want to delete "${agent.name}"?`)) deleteMutation.mutate({ id: agent.id });
         setActiveMenu(null);
     };
 
     const handleSubmit = (formData: CreateAgentInput | UpdateAgentInput) => {
-        if (dialogMode === "create") {
-            createMutation.mutate(formData as CreateAgentInput);
-        } else if (selectedAgent) {
-            updateMutation.mutate({
-                id: selectedAgent.id,
-                data: formData as UpdateAgentInput,
-            });
-        }
+        if (dialogMode === "create") createMutation.mutate(formData as CreateAgentInput);
+        else if (selectedAgent) updateMutation.mutate({ id: selectedAgent.id, data: formData as UpdateAgentInput });
     };
 
-    const closeDialog = () => {
-        setIsDialogOpen(false);
-        setSelectedAgent(null);
-        createMutation.reset();
-        updateMutation.reset();
-    };
-
+    const closeDialog = () => { setIsDialogOpen(false); setSelectedAgent(null); createMutation.reset(); updateMutation.reset(); };
     const getMutationError = () => {
         if (createMutation.error) return createMutation.error.message;
         if (updateMutation.error) return updateMutation.error.message;
         return null;
     };
 
-    // Status badge
     const StatusBadge = ({ status }: { status: string }) => {
-        const styles = {
-            active: "bg-green-500/20 text-green-400 border-green-500/30",
-            inactive: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-            archived: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
+        const styles: Record<string, string> = {
+            active: "bg-[#a3e635] text-black border-white",
+            inactive: "bg-yellow-300 text-black border-white",
+            archived: "bg-gray-500 text-white border-white",
         };
         return (
-            <span className={`px-2 py-1 text-xs font-medium rounded-full border ${styles[status as keyof typeof styles] || styles.active}`}>
+            <span className={`inline-flex items-center px-2 py-1 text-[10px] uppercase font-black border-2 shadow-neo-sm ${styles[status] || styles.active}`}>
                 {status}
             </span>
         );
     };
 
-    return (
-        <div className="p-6 md:p-8">
-            <div className="max-w-7xl mx-auto">
-                {/* Header */}
-                <AgentsListHeader
-                    agentCount={data?.total}
-                    onNewAgent={openCreateDialog}
-                />
+    const agentColors = ["#8B5CF6", "#a3e635", "#EAB308", "#EC4899", "#22d3ee", "#ef4444"];
 
-                {/* Filters */}
-                <div className="mb-6">
-                    <AgentsFilters />
+    return (
+        <div className="p-8 lg:p-12">
+            <div className="max-w-7xl mx-auto space-y-8">
+                {/* Upgrade Banner */}
+                <div className="border-[3px] border-white bg-[#EAB308] text-black p-6 flex items-center justify-between shadow-neo-purple relative overflow-hidden">
+                    <div className="absolute -right-8 -top-8 w-32 h-32 border-8 border-black/10 rounded-full"></div>
+                    <div className="flex items-center gap-4 relative z-10">
+                        <Sparkles className="w-6 h-6" />
+                        <div>
+                            <h3 className="font-display font-bold text-lg uppercase">Unlock More Agents</h3>
+                            <p className="text-sm font-medium">Upgrade to Pro for unlimited AI agent configurations.</p>
+                        </div>
+                    </div>
+                    <Link
+                        href="/upgrade"
+                        className="bg-black text-white px-6 py-3 font-black text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors relative z-10 border-2 border-transparent hover:border-white"
+                    >
+                        Upgrade →
+                    </Link>
                 </div>
 
-                {/* Loading state */}
+                <AgentsListHeader agentCount={data?.total} onNewAgent={openCreateDialog} />
+
+                <AgentsFilters />
+
                 {isLoading && <AgentsLoadingSkeleton />}
-
-                {/* Error state */}
                 {error && <AgentsError message={error.message} onRetry={() => refetch()} />}
-
-                {/* Empty state */}
                 {!isLoading && !error && data?.agents.length === 0 && (
                     <AgentsEmptyState onCreateAgent={openCreateDialog} />
                 )}
@@ -143,92 +105,84 @@ function AgentsPageContent() {
                 {/* Agents table */}
                 {!isLoading && !error && data && data.agents.length > 0 && (
                     <>
-                        <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                        <div className="border-[3px] border-white bg-black shadow-neo-purple overflow-hidden">
                             <div className="overflow-x-auto">
-                                <table className="w-full">
+                                <table className="w-full border-collapse">
                                     <thead>
-                                        <tr className="border-b border-zinc-800">
-                                            <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">Agent</th>
-                                            <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">Description</th>
-                                            <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">Status</th>
-                                            <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">Meetings</th>
-                                            <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">Created</th>
-                                            <th className="px-4 py-3 w-12"></th>
+                                        <tr className="bg-[#111] border-b-[3px] border-white text-gray-400 uppercase text-[10px] font-black tracking-widest">
+                                            <th className="p-4 text-left">Agent</th>
+                                            <th className="p-4 text-left">Description</th>
+                                            <th className="p-4 text-left">Status</th>
+                                            <th className="p-4 text-left">Meetings</th>
+                                            <th className="p-4 text-left">Created</th>
+                                            <th className="p-4 w-12"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {data.agents.map((agent) => (
-                                            <tr key={agent.id} className="border-b border-zinc-800 last:border-0 hover:bg-zinc-800/50 transition-colors">
-                                                <td className="px-4 py-4">
+                                        {data.agents.map((agent, index) => (
+                                            <tr key={agent.id} className="border-b-2 border-white/10 last:border-0 hover:bg-[#111] transition-colors">
+                                                <td className="p-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-lg flex items-center justify-center border border-blue-500/30">
-                                                            <Bot className="w-5 h-5 text-blue-400" />
+                                                        <div
+                                                            className="w-10 h-10 border-2 border-white flex items-center justify-center shadow-neo-sm font-black text-white text-sm"
+                                                            style={{ backgroundColor: agentColors[index % agentColors.length] }}
+                                                        >
+                                                            {agent.name.charAt(0).toUpperCase()}
                                                         </div>
                                                         <div>
-                                                            <div className="font-medium text-white">{agent.name}</div>
-                                                            <div className="text-xs text-zinc-500">ID: {agent.id.slice(0, 8)}...</div>
+                                                            <div className="font-bold text-white">{agent.name}</div>
+                                                            <div className="text-[10px] text-gray-500 font-mono">ID: {agent.id.slice(0, 8)}...</div>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-4">
-                                                    <span className="text-zinc-400 line-clamp-2 max-w-xs text-sm">
+                                                <td className="p-4">
+                                                    <span className="text-gray-400 line-clamp-2 max-w-xs text-sm font-medium">
                                                         {agent.description || "No description"}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-4">
-                                                    <StatusBadge status={agent.status} />
-                                                </td>
-                                                <td className="px-4 py-4">
-                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-zinc-300 bg-zinc-800 rounded-full">
-                                                        <Video className="w-3 h-3 text-zinc-500" />
+                                                <td className="p-4"><StatusBadge status={agent.status} /></td>
+                                                <td className="p-4">
+                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-black text-white bg-[#111] border-2 border-white shadow-neo-sm">
+                                                        <Video className="w-3 h-3 text-[#8B5CF6]" />
                                                         {(agent as any).meetingCount ?? 0}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-4">
-                                                    <span className="text-zinc-400 text-sm">
+                                                <td className="p-4">
+                                                    <span className="text-gray-400 text-sm font-mono">
                                                         {new Date(agent.createdAt).toLocaleDateString()}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-4">
+                                                <td className="p-4">
                                                     <div className="relative">
                                                         <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setActiveMenu(activeMenu === agent.id ? null : agent.id);
-                                                            }}
-                                                            className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+                                                            onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === agent.id ? null : agent.id); }}
+                                                            className="p-2 hover:bg-[#111] transition-colors border border-transparent hover:border-white"
                                                         >
-                                                            <MoreHorizontal className="w-4 h-4 text-zinc-400" />
+                                                            <MoreHorizontal className="w-4 h-4 text-gray-400" />
                                                         </button>
 
                                                         {activeMenu === agent.id && (
                                                             <>
-                                                                <div
-                                                                    className="fixed inset-0 z-10"
-                                                                    onClick={() => setActiveMenu(null)}
-                                                                />
-                                                                <div className="absolute right-0 top-full mt-1 w-40 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg z-20 py-1">
+                                                                <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
+                                                                <div className="absolute right-0 top-full mt-1 w-44 bg-black border-2 border-white shadow-neo z-20 py-1">
                                                                     <Link
                                                                         href={`/agents/${agent.id}`}
-                                                                        className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors"
+                                                                        className="flex items-center gap-2 px-3 py-2.5 text-sm text-gray-300 hover:bg-[#8B5CF6] hover:text-white font-bold transition-colors"
                                                                         onClick={() => setActiveMenu(null)}
                                                                     >
-                                                                        <Eye className="w-4 h-4" />
-                                                                        View Details
+                                                                        <Eye className="w-4 h-4" /> View Details
                                                                     </Link>
                                                                     <button
                                                                         onClick={() => openEditDialog(agent)}
-                                                                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors"
+                                                                        className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-300 hover:bg-[#a3e635] hover:text-black font-bold transition-colors"
                                                                     >
-                                                                        <Edit className="w-4 h-4" />
-                                                                        Edit
+                                                                        <Edit className="w-4 h-4" /> Edit
                                                                     </button>
                                                                     <button
                                                                         onClick={() => handleDelete(agent)}
-                                                                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                                                                        className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500 hover:text-white font-bold transition-colors"
                                                                     >
-                                                                        <Trash2 className="w-4 h-4" />
-                                                                        Delete
+                                                                        <Trash2 className="w-4 h-4" /> Delete
                                                                     </button>
                                                                 </div>
                                                             </>
@@ -242,23 +196,13 @@ function AgentsPageContent() {
                             </div>
                         </div>
 
-                        {/* Pagination */}
-                        <AgentsPagination
-                            total={data.total}
-                            page={data.page}
-                            pageSize={data.pageSize}
-                            totalPages={data.totalPages}
-                        />
+                        <AgentsPagination total={data.total} page={data.page} pageSize={data.pageSize} totalPages={data.totalPages} />
                     </>
                 )}
 
-                {/* Dialog */}
                 <AgentDialog
-                    isOpen={isDialogOpen}
-                    onClose={closeDialog}
-                    mode={dialogMode}
-                    agent={selectedAgent}
-                    onSubmit={handleSubmit}
+                    isOpen={isDialogOpen} onClose={closeDialog} mode={dialogMode}
+                    agent={selectedAgent} onSubmit={handleSubmit}
                     isLoading={createMutation.isPending || updateMutation.isPending}
                     error={getMutationError()}
                 />

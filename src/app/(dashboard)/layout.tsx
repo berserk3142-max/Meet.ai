@@ -1,27 +1,14 @@
-import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { CommandProvider } from "@/components/dashboard/CommandProvider";
-import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import TrialStatusBanner from "@/components/dashboard/TrialStatusBanner";
+import { auth } from "@/lib/auth";
 
-export default async function DashboardLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    let session = null;
-
-    try {
-        session = await auth.api.getSession({
-            headers: await headers(),
-        });
-    } catch (error) {
-        // Session retrieval failed - redirect to login
-        console.error("Failed to get session:", error);
-        redirect("/login");
-    }
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
 
     if (!session) {
         redirect("/login");
@@ -29,17 +16,24 @@ export default async function DashboardLayout({
 
     return (
         <CommandProvider>
-            <div className="flex h-screen bg-zinc-950">
+            <div className="flex min-h-screen" style={{ backgroundColor: "#f3f4f6", color: "#111827" }}>
                 <Sidebar />
-                <div className="flex-1 flex flex-col overflow-hidden">
-                    <DashboardNavbar user={session.user} />
-                    <TrialStatusBanner />
-                    <main className="flex-1 overflow-auto">
+                <main className="ml-64 flex-1 min-h-screen overflow-y-auto relative" style={{ backgroundColor: "#f3f4f6" }}>
+                    {/* Dot pattern overlay */}
+                    <div
+                        className="absolute inset-0 z-0 pointer-events-none"
+                        style={{
+                            opacity: 0.08,
+                            backgroundImage: "radial-gradient(#8B5CF6 1px, transparent 1px)",
+                            backgroundSize: "20px 20px",
+                        }}
+                    ></div>
+                    <div className="relative z-10">
+                        <TrialStatusBanner />
                         {children}
-                    </main>
-                </div>
+                    </div>
+                </main>
             </div>
         </CommandProvider>
     );
 }
-

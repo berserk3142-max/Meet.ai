@@ -2,139 +2,156 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "@/lib/auth-client";
-import { sidebarItems, bottomItems } from "@/modules/dashboard/sidebar-items";
-import { LogOut, Search, Sparkles } from "lucide-react";
-import { useCommand } from "./CommandProvider";
+import UserButton from "./UserButton";
+
+const navItems = [
+    { label: "Home", href: "/", icon: "home" },
+    { label: "Meetings", href: "/meetings", icon: "videocam" },
+    { label: "Agents", href: "/agents", icon: "smart_toy" },
+    { label: "Schedule", href: "/schedule", icon: "calendar_month" },
+];
 
 export default function Sidebar() {
     const pathname = usePathname();
-    const { open: openCommand } = useCommand();
-
-    const handleLogout = async () => {
-        await signOut();
-        window.location.href = "/login";
-    };
 
     return (
-        <aside className="w-64 h-screen bg-gradient-to-b from-zinc-900 via-zinc-900 to-zinc-950 border-r border-zinc-800/50 flex flex-col">
+        <aside className="w-64 h-screen flex flex-col fixed left-0 top-0 z-50"
+            style={{
+                borderRight: "3px solid #000000",
+                backgroundColor: "#ffffff",
+            }}
+        >
             {/* Logo */}
-            <div className="p-6 border-b border-zinc-800/50">
+            <div style={{ padding: "1.5rem", borderBottom: "3px solid #000000" }}>
                 <Link href="/" className="flex items-center gap-3 group">
-                    <div className="relative">
-                        <img src="/logo.svg" alt="Meet.ai" className="w-10 h-6 transition-transform group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-emerald-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div
+                        style={{
+                            width: "2.5rem",
+                            height: "2.5rem",
+                            backgroundColor: "#8B5CF6",
+                            border: "2px solid #000000",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            boxShadow: "2px 2px 0px 0px #000000",
+                        }}
+                    >
+                        <span className="material-symbols-outlined text-white font-bold">all_inclusive</span>
                     </div>
-                    <span className="text-xl font-bold bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-transparent">
+                    <h1
+                        style={{
+                            fontSize: "1.5rem",
+                            fontWeight: 900,
+                            letterSpacing: "-0.05em",
+                            textTransform: "uppercase",
+                            fontFamily: "'Lexend', sans-serif",
+                            color: "#000000",
+                        }}
+                    >
                         Meet.ai
-                    </span>
+                    </h1>
                 </Link>
             </div>
 
-            {/* Search Button */}
-            <div className="p-4 border-b border-zinc-800/50">
-                <button
-                    onClick={openCommand}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-zinc-400 bg-zinc-800/50 border border-zinc-700/50 rounded-xl hover:bg-zinc-800 hover:text-white transition-all duration-200"
-                >
-                    <Search className="w-4 h-4" />
-                    <span className="flex-1 text-left">Search...</span>
-                    <kbd className="px-1.5 py-0.5 text-xs bg-zinc-700 text-zinc-500 rounded">⌘K</kbd>
-                </button>
-            </div>
+            {/* Nav */}
+            <nav className="flex-1 p-4 space-y-4">
+                {navItems.map((item) => {
+                    const isActive = item.href === "/"
+                        ? pathname === "/"
+                        : pathname.startsWith(item.href);
 
-            {/* Navigation */}
-            <nav className="flex-1 p-4 overflow-y-auto">
-                <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-4">
-                    Menu
-                </p>
-                <ul className="space-y-1">
-                    {sidebarItems.map((item) => {
-                        const isActive = pathname === item.href ||
-                            (item.href !== "/" && pathname.startsWith(item.href));
-                        const Icon = item.icon;
-
-                        return (
-                            <li key={item.href}>
-                                <Link
-                                    href={item.href}
-                                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative ${isActive
-                                        ? "bg-gradient-to-r from-emerald-600/20 to-teal-600/20 text-white"
-                                        : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
-                                        }`}
-                                >
-                                    {/* Active indicator */}
-                                    {isActive && (
-                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-emerald-400 to-teal-500 rounded-r-full" />
-                                    )}
-                                    <Icon className={`w-5 h-5 transition-colors ${isActive ? "text-emerald-400" : "group-hover:text-emerald-400"}`} />
-                                    <span className="font-medium">{item.label}</span>
-                                </Link>
-                            </li>
-                        );
-                    })}
-                </ul>
+                    return (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className="group flex items-center gap-3 p-3 font-bold transition-all"
+                            style={
+                                isActive
+                                    ? {
+                                        backgroundColor: "#8B5CF6",
+                                        border: "2px solid #000000",
+                                        boxShadow: "4px 4px 0px 0px #000000",
+                                        color: "#ffffff",
+                                    }
+                                    : {
+                                        border: "2px solid transparent",
+                                        color: "#6b7280",
+                                    }
+                            }
+                            onMouseEnter={(e) => {
+                                if (!isActive) {
+                                    e.currentTarget.style.border = "2px solid #000000";
+                                    e.currentTarget.style.backgroundColor = "#f9fafb";
+                                    e.currentTarget.style.color = "#000000";
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                if (!isActive) {
+                                    e.currentTarget.style.border = "2px solid transparent";
+                                    e.currentTarget.style.backgroundColor = "transparent";
+                                    e.currentTarget.style.color = "#6b7280";
+                                }
+                            }}
+                        >
+                            <span className="material-icons">{item.icon}</span>
+                            <span>{item.label}</span>
+                        </Link>
+                    );
+                })}
             </nav>
 
-            {/* Upgrade CTA */}
-            <div className="p-4">
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-600/10 via-teal-600/10 to-cyan-600/10 border border-emerald-500/20 p-4">
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-full blur-2xl" />
-                    <div className="relative">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Sparkles className="w-4 h-4 text-emerald-400" />
-                            <span className="text-sm font-semibold text-white">Upgrade to Pro</span>
-                        </div>
-                        <p className="text-xs text-zinc-400 mb-3">
-                            Get unlimited meetings & advanced AI features
-                        </p>
-                        <Link
-                            href="/upgrade"
-                            className="block w-full py-2 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 text-center"
-                        >
-                            Upgrade Now
-                        </Link>
+            {/* Footer */}
+            <div style={{ padding: "1rem", borderTop: "3px solid #000000" }} className="space-y-2">
+                <Link
+                    href="/profile"
+                    className="flex items-center gap-3 p-2 font-bold text-sm transition-colors"
+                    style={{ color: "#374151" }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#f3f4f6";
+                        e.currentTarget.style.color = "#000000";
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                        e.currentTarget.style.color = "#374151";
+                    }}
+                >
+                    <span className="material-icons" style={{ color: "#8B5CF6" }}>person</span>
+                    <span>Profile</span>
+                </Link>
+                <Link
+                    href="/settings"
+                    className="flex items-center gap-3 p-2 font-bold text-sm transition-colors"
+                    style={{ color: "#374151" }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#f3f4f6";
+                        e.currentTarget.style.color = "#000000";
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                        e.currentTarget.style.color = "#374151";
+                    }}
+                >
+                    <div
+                        style={{
+                            width: "1.5rem",
+                            height: "1.5rem",
+                            backgroundColor: "#000000",
+                            color: "#ffffff",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderRadius: "9999px",
+                            fontSize: "0.75rem",
+                            fontWeight: 700,
+                        }}
+                    >
+                        N
                     </div>
+                    <span>Settings</span>
+                </Link>
+                <div className="pt-2">
+                    <UserButton />
                 </div>
-            </div>
-
-            {/* Bottom Section */}
-            <div className="p-4 border-t border-zinc-800/50">
-                <ul className="space-y-1">
-                    {bottomItems.map((item) => {
-                        const isActive = pathname.startsWith(item.href);
-                        const Icon = item.icon;
-
-                        return (
-                            <li key={item.href}>
-                                <Link
-                                    href={item.href}
-                                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative ${isActive
-                                        ? "bg-gradient-to-r from-emerald-600/20 to-teal-600/20 text-white"
-                                        : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
-                                        }`}
-                                >
-                                    {isActive && (
-                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-emerald-400 to-teal-500 rounded-r-full" />
-                                    )}
-                                    <Icon className={`w-5 h-5 transition-colors ${isActive ? "text-emerald-400" : "group-hover:text-emerald-400"}`} />
-                                    <span className="font-medium">{item.label}</span>
-                                </Link>
-                            </li>
-                        );
-                    })}
-
-                    {/* Logout Button */}
-                    <li>
-                        <button
-                            onClick={handleLogout}
-                            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 group"
-                        >
-                            <LogOut className="w-5 h-5 group-hover:text-red-400 transition-colors" />
-                            <span className="font-medium">Logout</span>
-                        </button>
-                    </li>
-                </ul>
             </div>
         </aside>
     );

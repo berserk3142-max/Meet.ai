@@ -1,2 +1,4 @@
 export { CallView } from "./CallView";
-export { AIVoiceAgent } from "./AIVoiceAgent";
+export { useAIVoiceAgent } from "./AIVoiceAgent";
+export type { AgentStatus } from "./AIVoiceAgent";
+export { AIParticipantTile } from "./AIParticipantTile";

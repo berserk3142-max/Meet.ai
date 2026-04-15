@@ -1,43 +1,41 @@
 "use client";
 
-import { useSession } from "@/lib/auth-client";
+import { useState } from "react";
 import Link from "next/link";
+import { X } from "lucide-react";
 
 export default function TrialStatusBanner() {
-    const { data: session, isPending } = useSession();
+    const [dismissed, setDismissed] = useState(false);
 
-    if (isPending || !session) return null;
-
-    const isProPlan = (session.user as any)?.plan === "pro";
-
-    if (isProPlan) {
-        return (
-            <div className="mx-8 mt-6 mb-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 border-2 border-[#a3e635] text-[#a3e635] text-xs font-bold uppercase tracking-wider">
-                    <span className="material-icons text-sm">verified</span>
-                    Pro Plan Active
-                </div>
-            </div>
-        );
-    }
+    if (dismissed) return null;
 
     return (
-        <div className="mx-8 mt-6 mb-2">
-            <div className="border-[3px] border-white bg-[#EAB308] text-black p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-neo-purple">
-                <div className="flex items-center gap-3">
-                    <span className="material-icons text-2xl">rocket_launch</span>
-                    <div>
-                        <p className="font-black text-sm uppercase">Free Plan</p>
-                        <p className="text-xs font-medium opacity-80">Upgrade to unlock unlimited meetings.</p>
-                    </div>
-                </div>
-                <Link
-                    href="/upgrade"
-                    className="bg-black text-white px-6 py-3 font-bold text-sm uppercase tracking-wider hover:bg-gray-800 hover:scale-105 transition-transform whitespace-nowrap border-2 border-transparent hover:border-white"
-                >
-                    Upgrade Plan →
-                </Link>
+        <div
+            className="flex items-center justify-between px-6 py-3"
+            style={{
+                backgroundColor: "#8B5CF6",
+                borderBottom: "3px solid #000000",
+            }}
+        >
+            <div className="flex items-center gap-3">
+                <span className="material-icons text-white text-sm">info</span>
+                <p className="text-white text-sm font-bold">
+                    You&apos;re on the free plan.{" "}
+                    <Link
+                        href="/upgrade"
+                        className="underline font-black hover:text-yellow-300 transition-colors"
+                    >
+                        Upgrade to Pro →
+                    </Link>
+                </p>
             </div>
+            <button
+                onClick={() => setDismissed(true)}
+                className="text-white/70 hover:text-white transition-colors p-1"
+                aria-label="Dismiss"
+            >
+                <X className="w-4 h-4" />
+            </button>
         </div>
     );
 }

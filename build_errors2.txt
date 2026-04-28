@@ -1,0 +1,123 @@
+ΓÜá Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\piyus\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\piyus\OneDrive\Desktop\Meet.ai\app\package-lock.json
+
+Γû▓ Next.js 16.1.4 (Turbopack)
+- Environments: .env
+
+ΓÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 4 errors:
+./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js:130:1
+Export createAuthEndpoint doesn't exist in target module
+  128 | import { APIError as APIError2 } from "better-auth/api";
+  129 | import { sessionMiddleware } from "better-auth/api";
+> 130 | import { createAuthEndpoint } from "better-auth/plugins";
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  131 | import { z } from "zod";
+  132 | var portal = ({ returnUrl, theme } = {}) => (polar2) => {
+  133 |   const retUrl = returnUrl ? new URL(returnUrl) : void 0;
+
+The export createAuthEndpoint was not found in module [project]/OneDrive/Desktop/Meet.ai/app/node_modules/better-auth/dist/plugins/index.mjs [app-route] (ecmascript).
+Did you mean to import deviceAuthorizationOptionsSchema?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  App Route:
+    ./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js
+    ./OneDrive/Desktop/Meet.ai/app/src/lib/auth.ts
+    ./OneDrive/Desktop/Meet.ai/app/src/app/api/auth/[...all]/route.ts
+
+  Server Component:
+    ./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js
+    ./OneDrive/Desktop/Meet.ai/app/src/lib/auth.ts
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/layout.tsx
+
+
+./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js:362:1
+Export createAuthEndpoint doesn't exist in target module
+  360 | // src/plugins/checkout.ts
+  361 | import { APIError as APIError3, getSessionFromCtx } from "better-auth/api";
+> 362 | import { createAuthEndpoint as createAuthEndpoint2 } from "better-auth/plugins";
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  363 | import { z as z2 } from "zod";
+  364 | var CheckoutParams = z2.object({
+  365 |   products: z2.union([z2.array(z2.string()), z2.string()]).optional(),
+
+The export createAuthEndpoint was not found in module [project]/OneDrive/Desktop/Meet.ai/app/node_modules/better-auth/dist/plugins/index.mjs [app-route] (ecmascript).
+Did you mean to import deviceAuthorizationOptionsSchema?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  App Route:
+    ./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js
+    ./OneDrive/Desktop/Meet.ai/app/src/lib/auth.ts
+    ./OneDrive/Desktop/Meet.ai/app/src/app/api/auth/[...all]/route.ts
+
+  Server Component:
+    ./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js
+    ./OneDrive/Desktop/Meet.ai/app/src/lib/auth.ts
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/layout.tsx
+
+
+./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js:130:1
+Export createAuthEndpoint doesn't exist in target module
+  128 | import { APIError as APIError2 } from "better-auth/api";
+  129 | import { sessionMiddleware } from "better-auth/api";
+> 130 | import { createAuthEndpoint } from "better-auth/plugins";
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  131 | import { z } from "zod";
+  132 | var portal = ({ returnUrl, theme } = {}) => (polar2) => {
+  133 |   const retUrl = returnUrl ? new URL(returnUrl) : void 0;
+
+The export createAuthEndpoint was not found in module [project]/OneDrive/Desktop/Meet.ai/app/node_modules/better-auth/dist/plugins/index.mjs [app-rsc] (ecmascript).
+Did you mean to import deviceAuthorizationOptionsSchema?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  App Route:
+    ./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js
+    ./OneDrive/Desktop/Meet.ai/app/src/lib/auth.ts
+    ./OneDrive/Desktop/Meet.ai/app/src/app/api/auth/[...all]/route.ts
+
+  Server Component:
+    ./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js
+    ./OneDrive/Desktop/Meet.ai/app/src/lib/auth.ts
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/layout.tsx
+
+
+./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js:362:1
+Export createAuthEndpoint doesn't exist in target module
+  360 | // src/plugins/checkout.ts
+  361 | import { APIError as APIError3, getSessionFromCtx } from "better-auth/api";
+> 362 | import { createAuthEndpoint as createAuthEndpoint2 } from "better-auth/plugins";
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  363 | import { z as z2 } from "zod";
+  364 | var CheckoutParams = z2.object({
+  365 |   products: z2.union([z2.array(z2.string()), z2.string()]).optional(),
+
+The export createAuthEndpoint was not found in module [project]/OneDrive/Desktop/Meet.ai/app/node_modules/better-auth/dist/plugins/index.mjs [app-rsc] (ecmascript).
+Did you mean to import deviceAuthorizationOptionsSchema?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  App Route:
+    ./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js
+    ./OneDrive/Desktop/Meet.ai/app/src/lib/auth.ts
+    ./OneDrive/Desktop/Meet.ai/app/src/app/api/auth/[...all]/route.ts
+
+  Server Component:
+    ./OneDrive/Desktop/Meet.ai/app/node_modules/@polar-sh/better-auth/dist/index.js
+    ./OneDrive/Desktop/Meet.ai/app/src/lib/auth.ts
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/layout.tsx
+
+
+    at ./OneDrive/Desktop/Meet.ai/app/node_modules/ (polar-sh/better-auth/dist/index.js:130:1)
+    at ./OneDrive/Desktop/Meet.ai/app/node_modules/ (polar-sh/better-auth/dist/index.js:362:1)
+    at ./OneDrive/Desktop/Meet.ai/app/node_modules/ (polar-sh/better-auth/dist/index.js:130:1)
+    at ./OneDrive/Desktop/Meet.ai/app/node_modules/ (polar-sh/better-auth/dist/index.js:362:1)

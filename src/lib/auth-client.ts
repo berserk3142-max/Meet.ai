@@ -1,9 +1,11 @@
-import { createAuthClient } from "better-auth/react";
-import { polarClient } from "@polar-sh/better-auth/client";
+/**
+ * Auth client utilities - Powered by Clerk
+ *
+ * Use these imports from @clerk/nextjs directly:
+ *   - useUser() - Get the current user (client-side)
+ *   - useAuth() - Get auth state (client-side)
+ *   - useClerk() - Access Clerk instance
+ *   - SignIn, SignUp, UserButton - UI components
+ */
 
-export const authClient = createAuthClient({
-    baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-    plugins: [polarClient()],
-});
-
-export const { signIn, signUp, signOut, useSession } = authClient;
+export { useUser, useAuth, useClerk } from "@clerk/nextjs";

@@ -1,67 +1,143 @@
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { currentUser } from "@clerk/nextjs/server";
 
 export default async function SettingsPage() {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const user = await currentUser();
 
     return (
         <div className="p-8">
             <div className="max-w-4xl">
-                <h1 className="text-4xl font-bold text-white mb-2">Settings</h1>
-                <p className="text-zinc-400 mb-8">Manage your account and preferences.</p>
+                <h1
+                    style={{
+                        fontSize: "2.25rem",
+                        fontWeight: 900,
+                        color: "#000000",
+                        marginBottom: "0.5rem",
+                        fontFamily: "'Lexend', sans-serif",
+                    }}
+                >
+                    Settings
+                </h1>
+                <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
+                    Manage your account and preferences.
+                </p>
 
                 {/* Account Settings */}
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-6">
-                    <h2 className="text-xl font-semibold text-white mb-4">Account</h2>
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center py-3 border-b border-zinc-800">
+                <div
+                    style={{
+                        backgroundColor: "#ffffff",
+                        border: "3px solid #000000",
+                        padding: "1.5rem",
+                        boxShadow: "6px 6px 0px 0px rgba(0,0,0,0.15)",
+                        marginBottom: "1.5rem",
+                    }}
+                >
+                    <h2
+                        style={{
+                            fontSize: "1.25rem",
+                            fontWeight: 700,
+                            color: "#000000",
+                            marginBottom: "1rem",
+                            fontFamily: "'Lexend', sans-serif",
+                        }}
+                    >
+                        Account
+                    </h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                padding: "0.75rem 0",
+                                borderBottom: "2px solid #e5e7eb",
+                            }}
+                        >
                             <div>
-                                <p className="text-white font-medium">Email</p>
-                                <p className="text-zinc-400 text-sm">{session?.user?.email}</p>
+                                <p style={{ fontWeight: 600, color: "#000000" }}>Email</p>
+                                <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+                                    {user?.emailAddresses[0]?.emailAddress}
+                                </p>
                             </div>
-                            <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">Change</button>
                         </div>
-                        <div className="flex justify-between items-center py-3 border-b border-zinc-800">
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                padding: "0.75rem 0",
+                                borderBottom: "2px solid #e5e7eb",
+                            }}
+                        >
                             <div>
-                                <p className="text-white font-medium">Password</p>
-                                <p className="text-zinc-400 text-sm">••••••••</p>
+                                <p style={{ fontWeight: 600, color: "#000000" }}>Name</p>
+                                <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+                                    {user?.firstName} {user?.lastName}
+                                </p>
                             </div>
-                            <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">Update</button>
                         </div>
                     </div>
                 </div>
 
                 {/* Preferences */}
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-6">
-                    <h2 className="text-xl font-semibold text-white mb-4">Preferences</h2>
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center py-3">
-                            <div>
-                                <p className="text-white font-medium">Email Notifications</p>
-                                <p className="text-zinc-400 text-sm">Receive email updates about meetings</p>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" defaultChecked className="sr-only peer" />
-                                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                            </label>
+                <div
+                    style={{
+                        backgroundColor: "#ffffff",
+                        border: "3px solid #000000",
+                        padding: "1.5rem",
+                        boxShadow: "6px 6px 0px 0px rgba(0,0,0,0.15)",
+                        marginBottom: "1.5rem",
+                    }}
+                >
+                    <h2
+                        style={{
+                            fontSize: "1.25rem",
+                            fontWeight: 700,
+                            color: "#000000",
+                            marginBottom: "1rem",
+                            fontFamily: "'Lexend', sans-serif",
+                        }}
+                    >
+                        Preferences
+                    </h2>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            padding: "0.75rem 0",
+                        }}
+                    >
+                        <div>
+                            <p style={{ fontWeight: 600, color: "#000000" }}>Email Notifications</p>
+                            <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+                                Receive email updates about meetings
+                            </p>
                         </div>
+                        <label style={{ position: "relative", display: "inline-flex", alignItems: "center", cursor: "pointer" }}>
+                            <input type="checkbox" defaultChecked className="sr-only peer" />
+                            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8B5CF6]"></div>
+                        </label>
                     </div>
                 </div>
 
-                {/* Danger Zone */}
-                <div className="bg-zinc-900 border border-red-900/50 rounded-xl p-6">
-                    <h2 className="text-xl font-semibold text-red-400 mb-4">Danger Zone</h2>
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <p className="text-white font-medium">Delete Account</p>
-                            <p className="text-zinc-400 text-sm">Permanently delete your account and all data</p>
-                        </div>
-                        <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-all">
-                            Delete Account
-                        </button>
-                    </div>
+                {/* Info Note */}
+                <div
+                    style={{
+                        backgroundColor: "#fef3c7",
+                        border: "3px solid #000000",
+                        padding: "1.5rem",
+                        boxShadow: "6px 6px 0px 0px #f59e0b",
+                    }}
+                >
+                    <p style={{ fontWeight: 700, color: "#000000", marginBottom: "0.25rem" }}>
+                        💡 Account Management
+                    </p>
+                    <p style={{ fontSize: "0.875rem", color: "#92400e" }}>
+                        To update your password, manage connected accounts, or delete your account, visit your{" "}
+                        <a href="/profile" style={{ color: "#8B5CF6", fontWeight: 700, textDecoration: "underline" }}>
+                            Profile page
+                        </a>.
+                    </p>
                 </div>
             </div>
         </div>

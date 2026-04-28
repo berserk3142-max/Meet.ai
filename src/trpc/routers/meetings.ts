@@ -248,5 +248,65 @@ export const meetingsRouter = router({
                 response: aiResponse,
             };
         }),
-});
 
+    /**
+     * Get an ephemeral OpenAI Realtime token for voice AI
+     */
+    getRealtimeToken: protectedProcedure
+        .input(z.object({ meetingId: z.string() }))
+        .query(async ({ ctx, input }) => {
+            const meeting = await meetingsService.getById(input.meetingId, ctx.user.id);
+            if (!meeting) {
+                throw new TRPCError({ code: "NOT_FOUND", message: "Meeting not found" });
+            }
+
+            const agentName = meeting.agent?.name || "AI Assistant";
+            const agentDesc = meeting.agent?.description || "";
+
+            const instructions = `You are ${agentName}, an AI meeting assistant.
+${agentDesc ? `Your role: ${agentDesc}` : ""}
+
+Your responsibilities:
+- Actively participate in the meeting conversation
+- Provide helpful insights and answers when asked
+- Be professional, concise, and helpful
+- Keep your responses conversational and natural
+- Listen carefully and respond appropriately`;
+
+            try {
+                const response = await fetch("https://api.openai.com/v1/realtime/sessions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4o-realtime-preview-2024-12-17",
+                        voice: "alloy",
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("[Realtime] Session creation failed:", response.status, errorText);
+                    throw new TRPCError({
+                        code: "INTERNAL_SERVER_ERROR",
+                        message: "OpenAI Realtime API not available. Check your API key has access to gpt-4o-realtime-preview.",
+                    });
+                }
+
+                const data = await response.json();
+                return {
+                    ephemeralToken: data.client_secret?.value || data.client_secret,
+                    agentName,
+                    instructions,
+                };
+            } catch (err: any) {
+                if (err instanceof TRPCError) throw err;
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Failed to create realtime session",
+                });
+            }
+        }),
+});

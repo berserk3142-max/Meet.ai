@@ -1,0 +1,27 @@
+ΓÜá Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\piyus\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\piyus\OneDrive\Desktop\Meet.ai\app\package-lock.json
+
+Γû▓ Next.js 16.1.4 (Turbopack)
+- Environments: .env
+
+ΓÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 23.0s
+  Running TypeScript ...
+Failed to compile.
+
+./src/app/(dashboard)/page.tsx:22:36
+Type error: Property 'userName' does not exist on type '{ totalMeetings: number; upcomingMeetings: number; completedMeetings: number; activeMeetings: number; totalAgents: number; activeAgents: number; hoursSaved: number; }'.
+
+  20 |                         Welcome back,<br />
+  21 |                         <span className="text-[#8B5CF6] underline decoration-white decoration-4">
+> 22 |                             {data?.userName || "User"}!
+     |                                    ^
+  23 |                         </span>
+  24 |                     </h1>
+  25 |                     <p className="text-lg md:text-xl text-gray-400 font-medium border-l-4 border-[#8B5CF6] pl-4 mt-4">
+Next.js build worker exited with code: 1 and signal: null

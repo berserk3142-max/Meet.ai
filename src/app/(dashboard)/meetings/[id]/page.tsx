@@ -2,36 +2,31 @@
 
 import { use, useState } from "react";
 import { trpc } from "@/trpc/client";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import {
-    ArrowLeft,
-    Video,
-    Clock,
-    Calendar,
-    Bot,
-    FileText,
-    MessageSquare,
-    Phone,
-    Loader2,
-    Send,
-} from "lucide-react";
+import MeetingHeader from "@/components/meetings/MeetingHeader";
+import SummaryTab from "@/components/meetings/SummaryTab";
+import TranscriptTab from "@/components/meetings/TranscriptTab";
+import RecordingTab from "@/components/meetings/RecordingTab";
+import AskAiTab from "@/components/meetings/AskAiTab";
 
 interface MeetingDetailPageProps {
     params: Promise<{ id: string }>;
 }
 
-const statusStyles: Record<string, string> = {
-    upcoming: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    active: "bg-green-500/20 text-green-400 border-green-500/30",
-    completed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-    processing: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    cancelled: "bg-red-500/20 text-red-400 border-red-500/30",
-};
+type TabKey = "details" | "summary" | "transcript" | "recording" | "chat";
+
+const tabs: { key: TabKey; label: string; icon: string }[] = [
+    { key: "details", label: "Details", icon: "info" },
+    { key: "summary", label: "Summary", icon: "auto_awesome" },
+    { key: "transcript", label: "Transcript", icon: "description" },
+    { key: "recording", label: "Recording", icon: "videocam" },
+    { key: "chat", label: "Ask AI", icon: "psychology" },
+];
 
 export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
     const { id } = use(params);
-    const [activeTab, setActiveTab] = useState<"details" | "transcript" | "summary" | "chat">("details");
-    const [chatInput, setChatInput] = useState("");
+    const [activeTab, setActiveTab] = useState<TabKey>("details");
 
     const { data: meeting, isLoading, error } = trpc.meetings.getById.useQuery({ id });
 
@@ -45,296 +40,164 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
         { enabled: activeTab === "summary" }
     );
 
-    const { data: chatData, refetch: refetchChat } = trpc.meetings.getChatHistory.useQuery(
-        { meetingId: id },
-        { enabled: activeTab === "chat" }
-    );
-
-    const sendMessage = trpc.meetings.sendChatMessage.useMutation({
-        onSuccess: () => {
-            setChatInput("");
-            refetchChat();
-        },
-    });
-
-    const handleSendMessage = () => {
-        if (!chatInput.trim()) return;
-        sendMessage.mutate({ meetingId: id, message: chatInput });
-    };
-
     if (isLoading) {
         return (
-            <div className="p-8 lg:p-12 flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+            <div style={{ padding: "3rem", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+                <Loader2 className="animate-spin" style={{ width: "2rem", height: "2rem", color: "#8B5CF6" }} />
             </div>
         );
     }
 
     if (error || !meeting) {
         return (
-            <div className="p-8 lg:p-12">
-                <div className="max-w-4xl mx-auto">
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center">
-                        <p className="text-zinc-400 text-lg">Meeting not found</p>
-                        <Link href="/meetings" className="mt-4 inline-flex items-center gap-2 text-purple-400 hover:text-purple-300">
-                            <ArrowLeft className="w-4 h-4" /> Back to meetings
-                        </Link>
-                    </div>
+            <div style={{ padding: "3rem" }}>
+                <div style={{
+                    maxWidth: "40rem", margin: "0 auto", textAlign: "center",
+                    backgroundColor: "#fff", border: "3px solid #000", padding: "3rem",
+                    boxShadow: "6px 6px 0px 0px #000",
+                }}>
+                    <span className="material-icons" style={{ fontSize: "3rem", color: "#ef4444", display: "block", marginBottom: "1rem" }}>error</span>
+                    <p style={{ fontWeight: 700, color: "#000", fontSize: "1.25rem" }}>Meeting not found</p>
+                    <Link href="/meetings" style={{
+                        display: "inline-flex", alignItems: "center", gap: "0.5rem",
+                        marginTop: "1rem", color: "#8B5CF6", fontWeight: 700,
+                        textDecoration: "none", fontSize: "0.875rem",
+                    }}>
+                        ← Back to meetings
+                    </Link>
                 </div>
             </div>
         );
     }
 
-    const tabs = [
-        { key: "details" as const, label: "Details", icon: FileText },
-        { key: "transcript" as const, label: "Transcript", icon: FileText },
-        { key: "summary" as const, label: "Summary", icon: FileText },
-        { key: "chat" as const, label: "Chat", icon: MessageSquare },
-    ];
-
     return (
-        <div className="p-8 lg:p-12">
-            <div className="max-w-4xl mx-auto space-y-6">
-                {/* Back link */}
-                <Link
-                    href="/meetings"
-                    className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    Back to Meetings
-                </Link>
+        <div style={{ padding: "2rem 3rem", minHeight: "100vh" }}>
+            <div style={{ maxWidth: "56rem", margin: "0 auto", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                <MeetingHeader meeting={meeting} id={id} />
 
-                {/* Header */}
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
-                    <div className="flex items-start justify-between">
-                        <div>
-                            <h1 className="text-3xl font-bold text-white mb-3">{meeting.name}</h1>
-                            <span className={`px-3 py-1 text-sm font-medium rounded-full border ${statusStyles[meeting.status] || statusStyles.upcoming}`}>
-                                {meeting.status}
-                            </span>
-                        </div>
-                        {meeting.status === "upcoming" && (
-                            <Link
-                                href={`/meetings/${id}/call`}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
-                            >
-                                <Phone className="w-4 h-4" />
-                                Join Call
-                            </Link>
-                        )}
-                        {meeting.status === "active" && (
-                            <Link
-                                href={`/meetings/${id}/call`}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium animate-pulse"
-                            >
-                                <Phone className="w-4 h-4" />
-                                Join Call
-                            </Link>
-                        )}
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                        <div className="flex items-center gap-2 text-zinc-400">
-                            <Calendar className="w-4 h-4" />
-                            <span className="text-sm">
-                                {meeting.createdAt ? new Date(meeting.createdAt).toLocaleDateString() : "-"}
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-zinc-400">
-                            <Clock className="w-4 h-4" />
-                            <span className="text-sm">
-                                {meeting.startedAt ? new Date(meeting.startedAt).toLocaleTimeString() : "Not started"}
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-zinc-400">
-                            <Bot className="w-4 h-4" />
-                            <span className="text-sm">Agent: {meeting.agentId?.slice(0, 8)}...</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-zinc-400">
-                            <Video className="w-4 h-4" />
-                            <span className="text-sm">
-                                {meeting.callId ? `Call: ${meeting.callId.slice(0, 8)}...` : "No call"}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Tabs */}
-                <div className="flex gap-1 bg-zinc-900 border border-zinc-800 rounded-xl p-1">
-                    {tabs.map((tab) => (
+                {/* Tab Bar */}
+                <div style={{
+                    display: "flex", gap: "0", border: "3px solid #000",
+                    backgroundColor: "#fff", overflow: "hidden",
+                }}>
+                    {tabs.map((tab, i) => (
                         <button
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-1 justify-center ${
-                                activeTab === tab.key
-                                    ? "bg-purple-600 text-white"
-                                    : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-                            }`}
+                            style={{
+                                flex: 1, display: "flex", alignItems: "center",
+                                justifyContent: "center", gap: "0.375rem",
+                                padding: "0.75rem 0.5rem", fontWeight: 700,
+                                fontSize: "0.8rem", cursor: "pointer", border: "none",
+                                borderRight: i < tabs.length - 1 ? "2px solid #000" : "none",
+                                backgroundColor: activeTab === tab.key ? "#8B5CF6" : "#fff",
+                                color: activeTab === tab.key ? "#fff" : "#6b7280",
+                                transition: "all 0.15s",
+                            }}
                         >
-                            <tab.icon className="w-4 h-4" />
-                            {tab.label}
+                            <span className="material-icons" style={{ fontSize: "1.125rem" }}>{tab.icon}</span>
+                            <span style={{ display: "none" }} className="sm-show">{tab.label}</span>
+                            <span>{tab.label}</span>
                         </button>
                     ))}
                 </div>
 
-                {/* Tab content */}
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                {/* Tab Content */}
+                <div style={{
+                    backgroundColor: "#fff", border: "3px solid #000",
+                    padding: "2rem", boxShadow: "6px 6px 0px 0px rgba(0,0,0,0.1)",
+                }}>
                     {activeTab === "details" && (
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white">Meeting Details</h3>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div>
-                                    <p className="text-sm text-zinc-500 mb-1">Meeting ID</p>
-                                    <p className="font-mono text-sm text-zinc-300">{meeting.id}</p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                            <h3 style={{ fontWeight: 800, fontSize: "1.25rem", color: "#000", fontFamily: "'Lexend', sans-serif" }}>
+                                Meeting Details
+                            </h3>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+                                <div style={{ border: "2px solid #e5e7eb", padding: "1rem" }}>
+                                    <p style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", color: "#9ca3af", letterSpacing: "0.1em", marginBottom: "0.25rem" }}>Meeting Name</p>
+                                    <p style={{ fontWeight: 600, color: "#000" }}>{meeting.name}</p>
                                 </div>
-                                <div>
-                                    <p className="text-sm text-zinc-500 mb-1">Agent ID</p>
-                                    <p className="font-mono text-sm text-zinc-300">{meeting.agentId}</p>
+                                <div style={{ border: "2px solid #e5e7eb", padding: "1rem" }}>
+                                    <p style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", color: "#9ca3af", letterSpacing: "0.1em", marginBottom: "0.25rem" }}>Agent</p>
+                                    <p style={{ fontWeight: 600, color: "#000" }}>{meeting.agent?.name || meeting.agentId}</p>
                                 </div>
-                                <div>
-                                    <p className="text-sm text-zinc-500 mb-1">Created</p>
-                                    <p className="text-zinc-300">
-                                        {meeting.createdAt ? new Date(meeting.createdAt).toLocaleString() : "-"}
-                                    </p>
+                                <div style={{ border: "2px solid #e5e7eb", padding: "1rem" }}>
+                                    <p style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", color: "#9ca3af", letterSpacing: "0.1em", marginBottom: "0.25rem" }}>Meeting ID</p>
+                                    <p style={{ fontWeight: 600, color: "#000", fontFamily: "monospace", fontSize: "0.85rem" }}>{meeting.id}</p>
                                 </div>
-                                <div>
-                                    <p className="text-sm text-zinc-500 mb-1">Last Updated</p>
-                                    <p className="text-zinc-300">
-                                        {meeting.updatedAt ? new Date(meeting.updatedAt).toLocaleString() : "-"}
-                                    </p>
+                                <div style={{ border: "2px solid #e5e7eb", padding: "1rem" }}>
+                                    <p style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", color: "#9ca3af", letterSpacing: "0.1em", marginBottom: "0.25rem" }}>Call ID</p>
+                                    <p style={{ fontWeight: 600, color: "#000", fontFamily: "monospace", fontSize: "0.85rem" }}>{meeting.callId || "—"}</p>
+                                </div>
+                                <div style={{ border: "2px solid #e5e7eb", padding: "1rem" }}>
+                                    <p style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", color: "#9ca3af", letterSpacing: "0.1em", marginBottom: "0.25rem" }}>Created</p>
+                                    <p style={{ fontWeight: 600, color: "#000" }}>{meeting.createdAt ? new Date(meeting.createdAt).toLocaleString() : "-"}</p>
+                                </div>
+                                <div style={{ border: "2px solid #e5e7eb", padding: "1rem" }}>
+                                    <p style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", color: "#9ca3af", letterSpacing: "0.1em", marginBottom: "0.25rem" }}>Updated</p>
+                                    <p style={{ fontWeight: 600, color: "#000" }}>{meeting.updatedAt ? new Date(meeting.updatedAt).toLocaleString() : "-"}</p>
                                 </div>
                                 {meeting.startedAt && (
-                                    <div>
-                                        <p className="text-sm text-zinc-500 mb-1">Started At</p>
-                                        <p className="text-zinc-300">{new Date(meeting.startedAt).toLocaleString()}</p>
+                                    <div style={{ border: "2px solid #e5e7eb", padding: "1rem" }}>
+                                        <p style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", color: "#9ca3af", letterSpacing: "0.1em", marginBottom: "0.25rem" }}>Started At</p>
+                                        <p style={{ fontWeight: 600, color: "#000" }}>{new Date(meeting.startedAt).toLocaleString()}</p>
                                     </div>
                                 )}
                                 {meeting.endedAt && (
-                                    <div>
-                                        <p className="text-sm text-zinc-500 mb-1">Ended At</p>
-                                        <p className="text-zinc-300">{new Date(meeting.endedAt).toLocaleString()}</p>
+                                    <div style={{ border: "2px solid #e5e7eb", padding: "1rem" }}>
+                                        <p style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", color: "#9ca3af", letterSpacing: "0.1em", marginBottom: "0.25rem" }}>Ended At</p>
+                                        <p style={{ fontWeight: 600, color: "#000" }}>{new Date(meeting.endedAt).toLocaleString()}</p>
                                     </div>
                                 )}
+                            </div>
+
+                            {/* Quick status indicators */}
+                            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", borderTop: "2px solid #e5e7eb", paddingTop: "1rem" }}>
+                                <div style={{
+                                    display: "flex", alignItems: "center", gap: "0.375rem",
+                                    padding: "0.375rem 0.75rem", border: "2px solid #000",
+                                    backgroundColor: meeting.summary ? "#dcfce7" : "#fee2e2",
+                                    fontSize: "0.75rem", fontWeight: 700,
+                                }}>
+                                    <span className="material-icons" style={{ fontSize: "0.875rem" }}>{meeting.summary ? "check_circle" : "cancel"}</span>
+                                    Summary
+                                </div>
+                                <div style={{
+                                    display: "flex", alignItems: "center", gap: "0.375rem",
+                                    padding: "0.375rem 0.75rem", border: "2px solid #000",
+                                    backgroundColor: meeting.transcript ? "#dcfce7" : "#fee2e2",
+                                    fontSize: "0.75rem", fontWeight: 700,
+                                }}>
+                                    <span className="material-icons" style={{ fontSize: "0.875rem" }}>{meeting.transcript ? "check_circle" : "cancel"}</span>
+                                    Transcript
+                                </div>
+                                <div style={{
+                                    display: "flex", alignItems: "center", gap: "0.375rem",
+                                    padding: "0.375rem 0.75rem", border: "2px solid #000",
+                                    backgroundColor: meeting.recordingUrl ? "#dcfce7" : "#fee2e2",
+                                    fontSize: "0.75rem", fontWeight: 700,
+                                }}>
+                                    <span className="material-icons" style={{ fontSize: "0.875rem" }}>{meeting.recordingUrl ? "check_circle" : "cancel"}</span>
+                                    Recording
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    {activeTab === "transcript" && (
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white">Transcript</h3>
-                            {transcriptData?.hasTranscript ? (
-                                <div className="space-y-3 max-h-[500px] overflow-y-auto">
-                                    {Array.isArray(transcriptData.transcript)
-                                        ? transcriptData.transcript.map((entry: any, i: number) => (
-                                            <div key={i} className="border-l-2 border-purple-500/30 pl-4 py-1">
-                                                <p className="text-xs font-medium text-purple-400">{entry.speaker || "Speaker"}</p>
-                                                <p className="text-zinc-300 text-sm">{entry.text || entry.content}</p>
-                                            </div>
-                                        ))
-                                        : <p className="text-zinc-300 whitespace-pre-wrap">{JSON.stringify(transcriptData.transcript, null, 2)}</p>
-                                    }
-                                </div>
-                            ) : (
-                                <p className="text-zinc-500">No transcript available yet.</p>
-                            )}
-                        </div>
+                    {activeTab === "summary" && (
+                        <SummaryTab summaryData={summaryData} meetingStatus={meeting.status} />
                     )}
 
-                    {activeTab === "summary" && (
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white">Summary</h3>
-                            {summaryData?.hasSummary ? (
-                                <div className="space-y-4">
-                                    {summaryData.summary?.summary && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-zinc-500 mb-1">Overview</h4>
-                                            <p className="text-zinc-300">{summaryData.summary.summary}</p>
-                                        </div>
-                                    )}
-                                    {summaryData.summary?.keyPoints && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-zinc-500 mb-1">Key Points</h4>
-                                            <ul className="list-disc list-inside text-zinc-300 space-y-1">
-                                                {summaryData.summary.keyPoints.map((point: string, i: number) => (
-                                                    <li key={i}>{point}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-                                    {summaryData.summary?.actionItems && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-zinc-500 mb-1">Action Items</h4>
-                                            <ul className="list-disc list-inside text-zinc-300 space-y-1">
-                                                {summaryData.summary.actionItems.map((item: string, i: number) => (
-                                                    <li key={i}>{item}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <p className="text-zinc-500">No summary available yet.</p>
-                            )}
-                        </div>
+                    {activeTab === "transcript" && (
+                        <TranscriptTab transcriptData={transcriptData} meetingStatus={meeting.status} />
+                    )}
+
+                    {activeTab === "recording" && (
+                        <RecordingTab meeting={meeting} />
                     )}
 
                     {activeTab === "chat" && (
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white">Chat with Meeting AI</h3>
-                            {meeting.status !== "completed" ? (
-                                <p className="text-zinc-500">Chat is available only for completed meetings.</p>
-                            ) : (
-                                <>
-                                    {/* Messages */}
-                                    <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                                        {chatData?.messages && chatData.messages.length > 0 ? (
-                                            chatData.messages.map((msg: any) => (
-                                                <div
-                                                    key={msg.id}
-                                                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                                                >
-                                                    <div
-                                                        className={`max-w-[80%] px-4 py-2 rounded-lg text-sm ${
-                                                            msg.role === "user"
-                                                                ? "bg-purple-600 text-white"
-                                                                : "bg-zinc-800 text-zinc-300"
-                                                        }`}
-                                                    >
-                                                        {msg.content}
-                                                    </div>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p className="text-zinc-500 text-center py-8">
-                                                Ask a question about this meeting...
-                                            </p>
-                                        )}
-                                    </div>
-                                    {/* Input */}
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={chatInput}
-                                            onChange={(e) => setChatInput(e.target.value)}
-                                            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                                            placeholder="Ask about this meeting..."
-                                            className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-purple-500"
-                                        />
-                                        <button
-                                            onClick={handleSendMessage}
-                                            disabled={sendMessage.isPending || !chatInput.trim()}
-                                            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg transition-colors"
-                                        >
-                                            {sendMessage.isPending ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
-                                            ) : (
-                                                <Send className="w-4 h-4" />
-                                            )}
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-                        </div>
+                        <AskAiTab meetingId={id} meetingStatus={meeting.status} />
                     )}
                 </div>
             </div>

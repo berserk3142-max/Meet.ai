@@ -1,17 +1,14 @@
-import { headers } from "next/headers";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { CommandProvider } from "@/components/dashboard/CommandProvider";
 import TrialStatusBanner from "@/components/dashboard/TrialStatusBanner";
-import { auth } from "@/lib/auth";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const { userId } = await auth();
 
-    if (!session) {
-        redirect("/login");
+    if (!userId) {
+        redirect("/sign-in");
     }
 
     return (

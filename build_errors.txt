@@ -1,0 +1,169 @@
+ΓÜá Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\piyus\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\piyus\OneDrive\Desktop\Meet.ai\app\package-lock.json
+
+Γû▓ Next.js 16.1.4 (Turbopack)
+- Environments: .env
+
+ΓÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 6 errors:
+./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/layout.tsx:5:1
+Module not found: Can't resolve '@/components/dashboard/TrialStatusBanner'
+  3 | import Sidebar from "@/components/dashboard/Sidebar";
+  4 | import { CommandProvider } from "@/components/dashboard/CommandProvider";
+> 5 | import TrialStatusBanner from "@/components/dashboard/TrialStatusBanner";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { auth } from "@/lib/auth";
+  7 |
+  8 | export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+
+Import map: aliased to relative './src/components/dashboard/TrialStatusBanner' inside of [project]/OneDrive/Desktop/Meet.ai/app
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx:7:1
+Module not found: Can't resolve '@/components/meetings/MeetingDialog'
+   5 | import { trpc } from "@/trpc/client";
+   6 | import { MeetingsDataTable } from "@/components/meetings/MeetingsDataTable";
+>  7 | import { MeetingDialog } from "@/components/meetings/MeetingDialog";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import { MeetingsHeader } from "@/components/meetings/MeetingsHeader";
+   9 | import { MeetingsFilters, MeetingsPagination } from "@/components/meetings/MeetingsFilters";
+  10 | import { Loader2 } from "lucide-react";
+
+Import map: aliased to relative './src/components/meetings/MeetingDialog' inside of [project]/OneDrive/Desktop/Meet.ai/app
+
+
+Import traces:
+  Client Component Browser:
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Client Component Browser]
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Client Component SSR]
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx:6:1
+Module not found: Can't resolve '@/components/meetings/MeetingsDataTable'
+  4 | import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
+  5 | import { trpc } from "@/trpc/client";
+> 6 | import { MeetingsDataTable } from "@/components/meetings/MeetingsDataTable";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import { MeetingDialog } from "@/components/meetings/MeetingDialog";
+  8 | import { MeetingsHeader } from "@/components/meetings/MeetingsHeader";
+  9 | import { MeetingsFilters, MeetingsPagination } from "@/components/meetings/MeetingsFilters";
+
+Import map: aliased to relative './src/components/meetings/MeetingsDataTable' inside of [project]/OneDrive/Desktop/Meet.ai/app
+
+
+Import traces:
+  Client Component Browser:
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Client Component Browser]
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Client Component SSR]
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx:9:1
+Module not found: Can't resolve '@/components/meetings/MeetingsFilters'
+   7 | import { MeetingDialog } from "@/components/meetings/MeetingDialog";
+   8 | import { MeetingsHeader } from "@/components/meetings/MeetingsHeader";
+>  9 | import { MeetingsFilters, MeetingsPagination } from "@/components/meetings/MeetingsFilters";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 | import { Loader2 } from "lucide-react";
+  11 | import type { CreateMeetingInput } from "@/modules/meetings";
+  12 | import Link from "next/link";
+
+Import map: aliased to relative './src/components/meetings/MeetingsFilters' inside of [project]/OneDrive/Desktop/Meet.ai/app
+
+
+Import traces:
+  Client Component Browser:
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Client Component Browser]
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Client Component SSR]
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx:8:1
+Module not found: Can't resolve '@/components/meetings/MeetingsHeader'
+   6 | import { MeetingsDataTable } from "@/components/meetings/MeetingsDataTable";
+   7 | import { MeetingDialog } from "@/components/meetings/MeetingDialog";
+>  8 | import { MeetingsHeader } from "@/components/meetings/MeetingsHeader";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 | import { MeetingsFilters, MeetingsPagination } from "@/components/meetings/MeetingsFilters";
+  10 | import { Loader2 } from "lucide-react";
+  11 | import type { CreateMeetingInput } from "@/modules/meetings";
+
+Import map: aliased to relative './src/components/meetings/MeetingsHeader' inside of [project]/OneDrive/Desktop/Meet.ai/app
+
+
+Import traces:
+  Client Component Browser:
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Client Component Browser]
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Client Component SSR]
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./OneDrive/Desktop/Meet.ai/app/node_modules/@better-auth/infra/dist/index.mjs:12:1
+Module not found: Can't resolve '@better-auth/sso'
+  10 | import z$1, { z } from "zod";
+  11 | import { setSessionCookie } from "better-auth/cookies";
+> 12 | import { DEFAULT_MAX_SAML_METADATA_SIZE, DigestAlgorithm, DiscoveryError, SignatureAlgorithm, discoverOIDCConfig } from "@better-auth/sso";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  13 |
+  14 | //#region src/options.ts
+  15 | function resolveConnectionOptions(options) {
+
+
+
+Import traces:
+  App Route:
+    ./OneDrive/Desktop/Meet.ai/app/node_modules/@better-auth/infra/dist/index.mjs
+    ./OneDrive/Desktop/Meet.ai/app/src/lib/auth.ts
+    ./OneDrive/Desktop/Meet.ai/app/src/app/api/auth/[...all]/route.ts
+
+  Server Component:
+    ./OneDrive/Desktop/Meet.ai/app/node_modules/@better-auth/infra/dist/index.mjs
+    ./OneDrive/Desktop/Meet.ai/app/src/lib/auth.ts
+    ./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/layout.tsx:5:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx:7:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx:6:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx:9:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./OneDrive/Desktop/Meet.ai/app/src/app/(dashboard)/meetings/page.tsx:8:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at ./OneDrive/Desktop/Meet.ai/app/node_modules/ (better-auth/infra/dist/index.mjs:12:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)

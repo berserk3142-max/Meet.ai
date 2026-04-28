@@ -1,12 +1,12 @@
 "use client";
 
 import { trpc } from "@/trpc/client";
-import { useSession } from "@/lib/auth-client";
+import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
-    const { data: session } = useSession();
+    const { user } = useUser();
     const { data, isLoading } = trpc.dashboard.getOverview.useQuery();
     const { data: meetingsData } = trpc.meetings.getMany.useQuery({
         page: 1,
@@ -17,7 +17,7 @@ export default function DashboardPage() {
     const agentCount = data?.activeAgents ?? 0;
     const hoursSaved = data?.hoursSaved ?? 0;
 
-    const userName = session?.user?.name || "User";
+    const userName = user?.firstName || user?.username || "User";
 
     const colors = ["#ec4899", "#3b82f6", "#8B5CF6", "#a3e635", "#f97316"];
 

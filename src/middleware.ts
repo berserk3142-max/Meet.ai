@@ -11,7 +11,19 @@ const isProtectedRoute = createRouteMatcher([
     "/upgrade(.*)",
 ]);
 
+// Routes that should be completely ignored by Clerk middleware
+// These are called by external services (webhooks, inngest, etc.)
+const isIgnoredRoute = createRouteMatcher([
+    "/api/webhooks(.*)",
+    "/api/inngest(.*)",
+]);
+
 export default clerkMiddleware(async (auth, req) => {
+    // Skip Clerk processing entirely for external service routes
+    if (isIgnoredRoute(req)) {
+        return;
+    }
+
     if (isProtectedRoute(req)) {
         await auth.protect();
     }

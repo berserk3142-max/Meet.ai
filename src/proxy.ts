@@ -1,7 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Force Node.js runtime to avoid Edge runtime compatibility issues on Vercel
-export const runtime = "nodejs";
 
 // Define public routes - these do NOT require authentication
 const isPublicRoute = createRouteMatcher([
